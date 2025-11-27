@@ -26,6 +26,8 @@ jobs:
           npm install
 
       - name: Run tests
+        env:
+          OPENAI_API_KEY: "test"
         run: |
           cd backend
           npm test
