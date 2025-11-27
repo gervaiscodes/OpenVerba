@@ -1,6 +1,6 @@
 # OpenVerba
 
-**OpenVerba** is a language-learning application that helps you learn new languages through text translation, word-by-word breakdowns, and audio pronunciation.
+**OpenVerba** is a language-learning application that helps you learn new languages through text translation, word-by-word breakdowns and audio pronunciation.
 
 ## Features
 
