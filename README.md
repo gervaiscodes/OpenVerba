@@ -6,6 +6,7 @@
 
 - 📝 **Text Translation**: Translate texts between multiple languages
 - 🔤 **Word-by-Word Breakdown**: See individual word translations and their meanings
+- 🤖 **AI Text Generation**: Generate new texts based on your known vocabulary
 - 🔊 **Audio Pronunciation**: Listen to sentences and words with natural-sounding voices
 - 📊 **Word Tracking**: Track word frequency and usage across all your texts
 - 💾 **Persistent Storage**: All translations and audio files are saved locally
@@ -310,6 +311,21 @@ Get all translations
 ### GET `/api/texts/:id`
 Get a specific translation by ID
 
+### DELETE `/api/texts/:id`
+Delete a translation
+
+### POST `/api/generate`
+Generate a new text based on known words
+
+**Request Body:**
+```json
+{
+  "source_language": "es",
+  "target_language": "en",
+  "topic": "travel"
+}
+```
+
 ### GET `/api/words`
 Get all words grouped by language with frequency counts
 
@@ -335,8 +351,9 @@ The application uses SQLite with the following tables:
 - **React 19**: UI framework
 - **TypeScript**: Type-safe JavaScript
 - **Vite**: Build tool
-- **TailwindCSS**: Utility-first CSS
+- **TailwindCSS v4**: Utility-first CSS
 - **React Router**: Client-side routing
+- **Lucide React**: Icon set
 
 ## Troubleshooting
 
