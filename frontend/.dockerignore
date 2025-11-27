@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+.DS_Store
+*.md
+dist
+.vscode
+.nvmrc
+yarn.lock
+bun.lock
