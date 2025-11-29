@@ -16,7 +16,6 @@ export default function App() {
             <h2 className="title">OpenVerba</h2>
           </Link>
           <nav className="app-nav">
-            <Link to="/" className="badge">Home</Link>
             <Link to="/words" className="badge">Words</Link>
             <Link to="/submit" className="badge badge-alt">New text</Link>
           </nav>
