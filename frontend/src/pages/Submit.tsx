@@ -83,7 +83,7 @@ export default function Submit() {
         <form onSubmit={onSubmit}>
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label" htmlFor="source-language">Source language</label>
+              <label className="form-label" htmlFor="source-language">I want to learn...</label>
               <select
                 id="source-language"
                 className="form-control"
@@ -98,7 +98,7 @@ export default function Submit() {
               </select>
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="target-language">Target language</label>
+              <label className="form-label" htmlFor="target-language">I know...</label>
               <select
                 id="target-language"
                 className="form-control"
@@ -116,7 +116,9 @@ export default function Submit() {
 
           <div className="form-group">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-              <label className="form-label" htmlFor="text-to-translate" style={{ marginBottom: 0 }}>Text to translate</label>
+              <label className="form-label" htmlFor="text-to-translate" style={{ marginBottom: 0 }}>
+                {LANGUAGES.find(l => l.code === sourceLang)?.name} text to translate
+              </label>
               <button
                 type="button"
                 onClick={() => setMode(mode === "manual" ? "generate" : "manual")}
@@ -163,7 +165,7 @@ export default function Submit() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={6}
-              placeholder={mode === "generate" ? "Generated text will appear here..." : "Enter text to translate..."}
+              placeholder={mode === "generate" ? "Generated text will appear here..." : "Enter text..."}
             />
           </div>
 
