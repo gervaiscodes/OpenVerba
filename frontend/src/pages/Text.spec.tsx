@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import Text from './Text';
 import { AudioSettingsProvider } from '../context/AudioSettingsContext';
@@ -202,7 +202,7 @@ describe('Text', () => {
     expect(deleteButton).toBeInTheDocument();
 
     // Click delete button
-    deleteButton.click();
+    fireEvent.click(deleteButton);
 
     // Should show confirmation
     await waitFor(() => {
