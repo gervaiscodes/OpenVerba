@@ -25,7 +25,6 @@ export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
       }
       if (wordId && !hasSubmitted.current) {
         hasSubmitted.current = true;
-        console.log("Making API call to record completion for word_id:", wordId);
         fetch(`${API_BASE_URL}/api/completions`, {
           method: "POST",
           headers: {
@@ -34,16 +33,12 @@ export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
           body: JSON.stringify({ word_id: wordId }),
         })
           .then((res) => {
-            console.log("API response:", res.status, res.statusText);
             return res.json();
           })
-          .then((data) => console.log("API response data:", data))
           .catch((e) => {
             // Silently handle errors to not disrupt user experience
             console.error("Failed to record completion:", e);
           });
-      } else {
-        console.log("Skipping API call - wordId:", wordId, "hasSubmitted:", hasSubmitted.current);
       }
 
       // Move to next input
