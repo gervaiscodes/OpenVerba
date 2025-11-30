@@ -21,7 +21,7 @@ export default function App() {
               <Link to="/words" className="badge">Words</Link>
               <Link to="/submit" className="badge badge-alt">New text</Link>
             </nav>
-             <StreakCounter />
+            <StreakCounter />
           </div>
         </header>
         <Routes>
