@@ -8,9 +8,10 @@
 - 🔤 **Word-by-Word Breakdown**: See individual word translations and their meanings
 - 🤖 **AI Text Generation**: Generate new texts based on your known vocabulary
 - 🔊 **Audio Pronunciation**: Listen to sentences and words with natural-sounding voices
-- 📊 **Word Tracking**: Track word frequency and usage across all your texts
+- 📊 **Word Tracking**: Track word frequency and usage across all your texts, with completion counts showing how many times you've practiced each word
 - ✏️ **Cloze Completion Practice**: Practice vocabulary with interactive cloze exercises where you complete words by typing missing letters
-- 🔥 **Streak Tracking**: Track your daily practice streak to stay motivated
+- 🔥 **Streak Tracking**: Track your daily practice streak to stay motivated (click the streak counter to view detailed statistics)
+- 📈 **Practice Statistics**: View completion trends with a visual graph showing your practice activity over the last 30 days
 - 💾 **Persistent Storage**: All translations and audio files are saved locally
 
 ## Supported Languages
@@ -199,6 +200,9 @@ yarn test --run --coverage
 - `Submit.spec.tsx` - Submit form component tests
 - `Text.spec.tsx` - Text display component tests
 - `Words.spec.tsx` - Words list component tests
+- `ClozeWord.spec.tsx` - Cloze word completion component tests
+- `StreakCounter.spec.tsx` - Streak counter component tests
+- `CompletionGraph.spec.tsx` - Completion statistics graph component tests
 
 ### Backend Tests
 
@@ -220,12 +224,17 @@ yarn test --run translate.spec.ts
 yarn test --run --coverage
 ```
 
-**Test Files Location:** `backend/lib/**/*.spec.ts`
+**Test Files Location:** `backend/**/*.spec.ts`
 
 **Available Specs:**
-- `translate.spec.ts` - Translation logic tests
-- `generate.spec.ts` - AI text generation tests
-- `audio.spec.ts` - Audio generation tests
+- `lib/translate.spec.ts` - Translation logic tests
+- `lib/generate.spec.ts` - AI text generation tests
+- `lib/audio.spec.ts` - Audio generation tests
+- `services/wordService.spec.ts` - Word service tests
+- `services/completionService.spec.ts` - Completion service tests
+- `controllers/completionController.spec.ts` - Completion controller tests
+- `controllers/wordController.spec.ts` - Word controller tests
+- `controllers/textController.spec.ts` - Text controller tests
 
 ### Test Configuration
 
@@ -309,6 +318,12 @@ The Practice step (step 5) uses cloze completion exercises:
 - Correct completions trigger a celebration animation
 - Completions are automatically tracked to maintain your practice streak
 - The streak counter (🔥) in the navigation bar shows your consecutive days of practice
+- Click the streak counter to view detailed statistics and completion trends
+
+**Statistics Page:**
+- Accessible by clicking the streak counter in the navigation bar
+- Displays a completion trends graph showing your practice activity over the last 30 days
+- Shows total completions and maximum completions per day
 
 ## API Endpoints
 
@@ -346,7 +361,24 @@ Generate a new text based on known words
 ```
 
 ### GET `/api/words`
-Get all words grouped by language with frequency counts
+Get all words grouped by language with frequency counts and completion counts
+
+**Response:**
+```json
+{
+  "en": [
+    {
+      "id": 1,
+      "source_word": "hello",
+      "target_word": "hola",
+      "source_language": "en",
+      "occurrence_count": 5,
+      "completion_count": 3,
+      "audio_url": "/audio/hello.mp3"
+    }
+  ]
+}
+```
 
 ### POST `/api/completions`
 Record a word completion (used when user successfully completes a cloze exercise)
@@ -372,6 +404,25 @@ Get the current practice streak (consecutive days with completions)
 ```json
 {
   "streak": 5
+}
+```
+
+### GET `/api/completions/stats`
+Get completion statistics grouped by date
+
+**Response:**
+```json
+{
+  "stats": [
+    {
+      "date": "2025-11-30",
+      "count": 10
+    },
+    {
+      "date": "2025-11-29",
+      "count": 5
+    }
+  ]
 }
 ```
 
