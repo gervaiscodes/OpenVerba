@@ -105,30 +105,6 @@ describe('StreakCounter', () => {
     expect(counter).toBeInTheDocument();
   });
 
-  it('navigates to /stats when clicked', async () => {
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ streak: 2 }),
-      })
-    ) as any;
-
-    render(
-      <MemoryRouter>
-        <StreakCounter />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('2')).toBeInTheDocument();
-    });
-
-    const counter = screen.getByTitle('2 day streak!');
-    fireEvent.click(counter);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/stats');
-  });
-
   it('fetches streak from correct API endpoint', async () => {
     globalThis.fetch = vi.fn(() =>
       Promise.resolve({

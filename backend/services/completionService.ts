@@ -87,4 +87,11 @@ export class CompletionService {
 
     return stats;
   }
+
+  static getTotalCount(): number {
+    const result = db
+      .prepare("SELECT COUNT(*) as count FROM completions")
+      .get() as { count: number };
+    return result.count;
+  }
 }

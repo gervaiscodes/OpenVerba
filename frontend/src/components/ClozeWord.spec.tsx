@@ -10,6 +10,12 @@ vi.mock('./Firework', () => ({
   Firework: () => <div data-testid="firework">🎆</div>,
 }));
 
+vi.mock('../context/CoinContext', () => ({
+  useCoin: () => ({
+    increment: vi.fn(),
+  }),
+}));
+
 describe('ClozeWord', () => {
   beforeEach(() => {
     vi.clearAllMocks();

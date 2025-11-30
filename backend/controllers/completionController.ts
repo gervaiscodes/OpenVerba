@@ -40,13 +40,24 @@ export class CompletionController {
     }
   }
 
-  static async getStats(_request: FastifyRequest, reply: FastifyReply) {
+  static async getStats(request: FastifyRequest, reply: FastifyReply) {
     try {
       const stats = CompletionService.getCompletionStats();
       return reply.send({ stats });
     } catch (error) {
-      _request.log.error(error);
-      return reply.status(500).send({ error: "Failed to get completion stats" });
+      request.log.error(error);
+      return reply
+        .status(500)
+        .send({ error: "Failed to get completion stats" });
+    }
+  }
+
+  static async getTotal(_request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const total = CompletionService.getTotalCount();
+      return reply.send({ total });
+    } catch (error) {
+      return reply.status(500).send({ error: "Failed to get total count" });
     }
   }
 }

@@ -498,3 +498,26 @@ textarea.form-control {
     filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.9));
   }
 }
+
+/* Coins Counter */
+.coins-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #71717a;
+  transition: all 0.2s ease;
+}
+
+.coins-counter:hover {
+  color: #e4e4e7;
+}
+
+.coins-icon {
+  font-size: 1rem;
+}
+
+.coins-count {
+  color: #e4e4e7;
+}

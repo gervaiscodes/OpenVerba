@@ -141,7 +141,9 @@ describe("CompletionController", () => {
         .run().lastInsertRowid;
 
       // Mock CompletionService to throw an error
-      const { CompletionService } = await import("../services/completionService.js");
+      const { CompletionService } = await import(
+        "../services/completionService.js"
+      );
       const originalCreate = CompletionService.createCompletion;
       CompletionService.createCompletion = vi.fn().mockImplementation(() => {
         throw new Error("Database error");
@@ -216,7 +218,9 @@ describe("CompletionController", () => {
 
     it("should handle errors gracefully", async () => {
       // Mock CompletionService to throw an error
-      const { CompletionService } = await import("../services/completionService.js");
+      const { CompletionService } = await import(
+        "../services/completionService.js"
+      );
       const originalGetStreak = CompletionService.getStreak;
       CompletionService.getStreak = vi.fn().mockImplementation(() => {
         throw new Error("Database error");
@@ -299,7 +303,9 @@ describe("CompletionController", () => {
 
     it("should handle errors gracefully", async () => {
       // Mock CompletionService to throw an error
-      const { CompletionService } = await import("../services/completionService.js");
+      const { CompletionService } = await import(
+        "../services/completionService.js"
+      );
       const originalGetStats = CompletionService.getCompletionStats;
       CompletionService.getCompletionStats = vi.fn().mockImplementation(() => {
         throw new Error("Database error");
@@ -328,5 +334,77 @@ describe("CompletionController", () => {
       CompletionService.getCompletionStats = originalGetStats;
     });
   });
-});
 
+  describe("getTotal", () => {
+    it("should return total count of completions", async () => {
+      // Setup: Create a word and some completions
+      const wordId = db
+        .prepare(
+          `INSERT INTO words (source_word, target_word, source_language, target_language)
+           VALUES ('hello', 'hola', 'en', 'es')`
+        )
+        .run().lastInsertRowid;
+
+      // Create some completions
+      db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
+      db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
+      db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
+
+      const request = {} as any;
+
+      const reply = {
+        send: vi.fn(),
+        status: vi.fn().mockReturnThis(),
+      } as any;
+
+      await CompletionController.getTotal(request, reply);
+
+      expect(reply.send).toHaveBeenCalledWith({ total: 3 });
+    });
+
+    it("should return 0 when no completions exist", async () => {
+      const request = {} as any;
+
+      const reply = {
+        send: vi.fn(),
+        status: vi.fn().mockReturnThis(),
+      } as any;
+
+      await CompletionController.getTotal(request, reply);
+
+      expect(reply.send).toHaveBeenCalledWith({ total: 0 });
+    });
+
+    it("should handle errors gracefully", async () => {
+      // Mock CompletionService to throw an error
+      const { CompletionService } = await import(
+        "../services/completionService.js"
+      );
+      const originalGetTotal = CompletionService.getTotalCount;
+      CompletionService.getTotalCount = vi.fn().mockImplementation(() => {
+        throw new Error("Database error");
+      });
+
+      const request = {
+        log: {
+          error: vi.fn(),
+        },
+      } as any;
+
+      const reply = {
+        send: vi.fn(),
+        status: vi.fn().mockReturnThis(),
+      } as any;
+
+      await CompletionController.getTotal(request, reply);
+
+      expect(reply.status).toHaveBeenCalledWith(500);
+      expect(reply.send).toHaveBeenCalledWith({
+        error: "Failed to get total count",
+      });
+
+      // Restore original method
+      CompletionService.getTotalCount = originalGetTotal;
+    });
+  });
+});
