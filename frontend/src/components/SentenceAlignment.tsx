@@ -1,10 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useAudioSettings } from "../context/AudioSettingsContext";
 import { API_BASE_URL } from "../config/api";
 import { STEP_CONFIG } from "../config/alignment";
 import type { AlignmentSentence } from "../types/alignment";
 import { ClozeWord } from "./ClozeWord";
 import { PlayIcon } from "./icons/PlayIcon";
+import { useAudioPlayer } from "../hooks/useAudioPlayer";
+import { sortByOrder, needsSpaceBefore } from "../utils/text";
 
 export function SentenceAlignment({
   sentence,
@@ -20,23 +22,31 @@ export function SentenceAlignment({
   step: number;
 }) {
   const [hoveredOrder, setHoveredOrder] = useState<number | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const wordAudioRef = useRef<HTMLAudioElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const wordAudioRef = useRef<HTMLAudioElement | null>(null);
   const { playbackRate } = useAudioSettings();
 
   const config = STEP_CONFIG[step];
 
+  // Use custom audio hook for sentence audio
+  const sentenceAudio = useAudioPlayer(
+    isActive && onPlayEnd ? onPlayEnd : undefined
+  );
+
+  // Memoize sorted items to avoid re-sorting on every render
+  const sortedItems = useMemo(
+    () => [...sentence.items].sort(sortByOrder),
+    [sentence.items]
+  );
+
+  // Sync word audio playback rate
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.playbackRate = playbackRate;
-    }
     if (wordAudioRef.current) {
       wordAudioRef.current.playbackRate = playbackRate;
     }
   }, [playbackRate]);
 
+  // Handle active state changes
   useEffect(() => {
     if (isActive) {
       containerRef.current?.scrollIntoView({
@@ -44,45 +54,21 @@ export function SentenceAlignment({
         block: "center",
       });
       if (config.autoPlay) {
-        playAudio();
+        playSentenceAudio();
       } else if (onPlayEnd) {
         onPlayEnd();
       }
     } else {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        setIsPlaying(false);
-      }
+      sentenceAudio.stop();
     }
   }, [isActive, config.autoPlay]);
 
-  function playAudio() {
+  function playSentenceAudio() {
     if (!sentence.audio_url || !config.showAudioBtn) {
       if (isActive && onPlayEnd) onPlayEnd();
       return;
     }
-
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-
-    setIsPlaying(true);
-    const audio = new Audio(`${API_BASE_URL}${sentence.audio_url}`);
-    audio.playbackRate = playbackRate;
-    audioRef.current = audio;
-
-    audio.onended = () => {
-      setIsPlaying(false);
-      if (isActive && onPlayEnd) onPlayEnd();
-    };
-
-    audio.play().catch((e) => {
-      console.error("Failed to play audio:", e);
-      setIsPlaying(false);
-      if (isActive && onPlayEnd) onPlayEnd();
-    });
+    sentenceAudio.play(sentence.audio_url);
   }
 
   function playWordAudio(url: string) {
@@ -99,21 +85,19 @@ export function SentenceAlignment({
     >
       {config.showTokens && (
         <div className="tokens">
-          {sentence.items
-            .sort((a, b) => a.order - b.order)
-            .map((it, idx) => (
-              <div
-                key={`pair-${it.order}`}
-                className={`token${
-                  hoveredOrder === it.order ? " highlight" : ""
-                }`}
-              >
-                <div className="src">{it.target}</div>
-                <div className={`tgt${idx === 0 ? " first-word" : ""}${it.occurrence_count === 1 ? " new-word" : ""}`}>
-                  {it.source}
-                </div>
+          {sortedItems.map((it, idx) => (
+            <div
+              key={`pair-${it.order}`}
+              className={`token${
+                hoveredOrder === it.order ? " highlight" : ""
+              }`}
+            >
+              <div className="src">{it.target}</div>
+              <div className={`tgt${idx === 0 ? " first-word" : ""}${it.occurrence_count === 1 ? " new-word" : ""}`}>
+                {it.source}
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       )}
       <div
@@ -124,9 +108,9 @@ export function SentenceAlignment({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              playAudio();
+              playSentenceAudio();
             }}
-            className={`play-button${isPlaying ? " playing" : ""}`}
+            className={`play-button${sentenceAudio.isPlaying ? " playing" : ""}`}
             title="Play audio"
             style={config.audioBtnStyle}
           >
@@ -136,31 +120,29 @@ export function SentenceAlignment({
 
         {config.showSource && (
           <div className="text-source">
-            {sentence.items
-              .sort((a, b) => a.order - b.order)
-              .map((it, idx) => (
-                <span
-                  key={`s-${it.order}`}
-                  className={`srcw${idx === 0 ? " first-word" : ""}${
-                    hoveredOrder === it.order ? " highlight" : ""
-                  }`}
-                  style={{
-                    cursor: config.allowWordClick ? "pointer" : "default",
-                  }}
-                  onMouseEnter={() => setHoveredOrder(it.order)}
-                  onMouseLeave={() => setHoveredOrder(null)}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (config.allowWordClick && it.audio_url) playWordAudio(it.audio_url);
-                  }}
-                  title={
-                    config.allowWordClick && it.audio_url ? "Click to listen" : undefined
-                  }
-                >
-                  {idx > 0 && !/^[.,!?;:]/.test(it.source) ? " " : ""}
-                  {step === 5 ? <ClozeWord word={it.source} /> : it.source}
-                </span>
-              ))}
+            {sortedItems.map((it, idx) => (
+              <span
+                key={`s-${it.order}`}
+                className={`srcw${idx === 0 ? " first-word" : ""}${
+                  hoveredOrder === it.order ? " highlight" : ""
+                }`}
+                style={{
+                  cursor: config.allowWordClick ? "pointer" : "default",
+                }}
+                onMouseEnter={() => setHoveredOrder(it.order)}
+                onMouseLeave={() => setHoveredOrder(null)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (config.allowWordClick && it.audio_url) playWordAudio(it.audio_url);
+                }}
+                title={
+                  config.allowWordClick && it.audio_url ? "Click to listen" : undefined
+                }
+              >
+                {idx > 0 && needsSpaceBefore(it.source) ? " " : ""}
+                {step === 5 ? <ClozeWord word={it.source} /> : it.source}
+              </span>
+            ))}
           </div>
         )}
 
@@ -169,21 +151,19 @@ export function SentenceAlignment({
             className="text-target"
             style={config.targetStyle}
           >
-            {sentence.items
-              .sort((a, b) => a.order - b.order)
-              .map((it, idx) => (
-                <span
-                  key={`t-${it.order}`}
-                  style={{
-                    textDecoration: step === 1 && (it.occurrence_count || 0) === 1 ? "underline dotted" : "none",
-                    textUnderlineOffset: "4px",
-                    textDecorationColor: "var(--muted-foreground)"
-                  }}
-                >
-                  {idx > 0 && !/^[.,!?;:]/.test(it.target) ? " " : ""}
-                  {it.target}
-                </span>
-              ))}
+            {sortedItems.map((it, idx) => (
+              <span
+                key={`t-${it.order}`}
+                style={{
+                  textDecoration: step === 1 && (it.occurrence_count || 0) === 1 ? "underline dotted" : "none",
+                  textUnderlineOffset: "4px",
+                  textDecorationColor: "var(--muted-foreground)"
+                }}
+              >
+                {idx > 0 && needsSpaceBefore(it.target) ? " " : ""}
+                {it.target}
+              </span>
+            ))}
           </div>
         )}
       </div>
