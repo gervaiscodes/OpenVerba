@@ -9,6 +9,8 @@
 - 🤖 **AI Text Generation**: Generate new texts based on your known vocabulary
 - 🔊 **Audio Pronunciation**: Listen to sentences and words with natural-sounding voices
 - 📊 **Word Tracking**: Track word frequency and usage across all your texts
+- ✏️ **Cloze Completion Practice**: Practice vocabulary with interactive cloze exercises where you complete words by typing missing letters
+- 🔥 **Streak Tracking**: Track your daily practice streak to stay motivated
 - 💾 **Persistent Storage**: All translations and audio files are saved locally
 
 ## Supported Languages
@@ -291,6 +293,23 @@ OpenVerba/
 └── docker-compose.yml
 ```
 
+## Learning Flow
+
+Each text follows a structured 5-step learning process:
+
+1. **Read Target**: Read the translation in your native language
+2. **Listen**: Listen to the audio pronunciation while reading the translation
+3. **Dual**: View both source and target languages side-by-side with word-by-word alignment
+4. **Read Source**: Read the original text in the language you're learning
+5. **Practice**: Complete cloze exercises where you type the missing letters of each word (only the first letter is shown)
+
+The Practice step (step 5) uses cloze completion exercises:
+- Each word displays only its first letter
+- You type the remaining letters to complete the word
+- Correct completions trigger a celebration animation
+- Completions are automatically tracked to maintain your practice streak
+- The streak counter (🔥) in the navigation bar shows your consecutive days of practice
+
 ## API Endpoints
 
 ### POST `/api/texts`
@@ -329,6 +348,33 @@ Generate a new text based on known words
 ### GET `/api/words`
 Get all words grouped by language with frequency counts
 
+### POST `/api/completions`
+Record a word completion (used when user successfully completes a cloze exercise)
+
+**Request Body:**
+```json
+{
+  "word_id": 123
+}
+```
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+### GET `/api/completions/streak`
+Get the current practice streak (consecutive days with completions)
+
+**Response:**
+```json
+{
+  "streak": 5
+}
+```
+
 ## Database Schema
 
 The application uses SQLite with the following tables:
@@ -337,6 +383,7 @@ The application uses SQLite with the following tables:
 - **sentences**: Stores translated sentences
 - **words**: Stores unique word translations
 - **sentence_words**: Links words to sentences
+- **completions**: Tracks word completions for practice streaks (stores `word_id` and `completed_at` timestamp)
 
 ## Technology Stack
 
