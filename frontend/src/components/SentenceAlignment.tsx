@@ -4,6 +4,7 @@ import { API_BASE_URL } from "../config/api";
 import { STEP_CONFIG } from "../config/alignment";
 import type { AlignmentSentence } from "../types/alignment";
 import { ClozeWord } from "./ClozeWord";
+import { PlayIcon } from "./icons/PlayIcon";
 
 export function SentenceAlignment({
   sentence,
@@ -129,15 +130,7 @@ export function SentenceAlignment({
             title="Play audio"
             style={config.audioBtnStyle}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              stroke="none"
-            >
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
+            <PlayIcon />
           </button>
         )}
 

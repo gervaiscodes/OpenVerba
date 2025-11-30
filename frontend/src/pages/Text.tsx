@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAudioSettings } from "../context/AudioSettingsContext";
 import { API_BASE_URL } from "../config/api";
 import { getLanguageName } from "../utils/languages";
+import { PlayIcon } from "../components/icons/PlayIcon";
 
 type AlignmentItem = {
   order: number;
@@ -305,15 +306,7 @@ function SentenceAlignment({
             title="Play audio"
             style={config.audioBtnStyle}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              stroke="none"
-            >
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
+            <PlayIcon />
           </button>
         )}
 

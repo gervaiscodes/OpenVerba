@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { useAudioSettings } from "../context/AudioSettingsContext";
 import { API_BASE_URL } from "../config/api";
 import { getLanguageName } from "../utils/languages";
+import { PlayIcon } from "../components/icons/PlayIcon";
 
 type Word = {
   id: number;
@@ -73,15 +74,7 @@ function WordItem({ word }: { word: Word }) {
               }}
               title="Play audio"
             >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                stroke="none"
-              >
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
+              <PlayIcon size={12} />
             </button>
           )}
         </div>
