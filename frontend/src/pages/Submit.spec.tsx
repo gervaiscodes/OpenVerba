@@ -22,9 +22,9 @@ describe('Submit', () => {
     );
 
     expect(screen.getByText('New translation')).toBeInTheDocument();
-    expect(screen.getByLabelText('Source language')).toBeInTheDocument();
-    expect(screen.getByLabelText('Target language')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Enter text to translate...')).toBeInTheDocument();
+    expect(screen.getByLabelText('I want to learn...')).toBeInTheDocument();
+    expect(screen.getByLabelText('I know...')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter text...')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Translate Text' })).toBeInTheDocument();
   });
 
@@ -60,7 +60,7 @@ describe('Submit', () => {
       </BrowserRouter>
     );
 
-    const textarea = screen.getByPlaceholderText('Enter text to translate...');
+    const textarea = screen.getByPlaceholderText('Enter text...');
     fireEvent.change(textarea, { target: { value: 'Hello world' } });
 
     const submitButton = screen.getByRole('button', { name: 'Translate Text' });
@@ -81,7 +81,7 @@ describe('Submit', () => {
       </BrowserRouter>
     );
 
-    const textarea = screen.getByPlaceholderText('Enter text to translate...');
+    const textarea = screen.getByPlaceholderText('Enter text...');
     fireEvent.change(textarea, { target: { value: 'Test text' } });
 
     const submitButton = screen.getByRole('button', { name: 'Translate Text' });
