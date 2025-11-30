@@ -89,7 +89,73 @@ const STEP_CONFIG: Record<number, StepConfig> = {
     containerStyle: { borderTop: "none", paddingTop: 0 },
     allowWordClick: true,
   },
+  5: {
+    // Practice (Cloze)
+    showTokens: false,
+    showSource: true,
+    showTarget: false,
+    showAudioBtn: true,
+    audioBtnStyle: { left: 0, top: "50%" },
+    autoPlay: false,
+    containerStyle: { paddingLeft: "3rem", minHeight: "2.5rem", borderTop: "none", paddingTop: 0 },
+    allowWordClick: false,
+  },
 };
+
+function ClozeWord({ word }: { word: string }) {
+  const [value, setValue] = useState("");
+
+  // If word is too short or punctuation, just show it
+  if (word.length <= 1 || /^[.,!?;:]+$/.test(word)) {
+    return <span>{word}</span>;
+  }
+
+  const firstLetter = word[0];
+  const rest = word.slice(1);
+  const isCorrect = value.toLowerCase() === rest.toLowerCase();
+  const isError = value.length > 0 && !isCorrect;
+
+  useEffect(() => {
+    if (isCorrect) {
+      const inputs = Array.from(document.querySelectorAll(".cloze-input"));
+      const currentInput = document.activeElement;
+      const currentIndex = inputs.indexOf(currentInput as Element);
+      if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
+        (inputs[currentIndex + 1] as HTMLElement).focus();
+      }
+    }
+  }, [isCorrect]);
+
+  return (
+    <span className="cloze-word" style={{ display: "inline-flex", alignItems: "baseline" }}>
+      <span style={{ color: isCorrect ? "#4ade80" : isError ? "#ef4444" : "inherit", transition: "color 0.2s ease" }}>{firstLetter}</span>
+      <input
+        type="text"
+        className="cloze-input"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
+        style={{
+          border: "none",
+          borderBottom: `1px solid ${isCorrect ? "#4ade80" : isError ? "#ef4444" : "#52525b"}`,
+          background: "transparent",
+          color: isCorrect ? "#4ade80" : isError ? "#ef4444" : "inherit",
+          width: `${rest.length + 0.5}ch`,
+          padding: 0,
+          marginLeft: "1px",
+          outline: "none",
+          fontFamily: "inherit",
+          fontSize: "inherit",
+          fontWeight: "inherit",
+          transition: "all 0.2s ease"
+        }}
+      />
+    </span>
+  );
+}
 
 function SentenceAlignment({
   sentence,
@@ -275,7 +341,7 @@ function SentenceAlignment({
                   }
                 >
                   {idx > 0 && !/^[.,!?;:]/.test(it.source) ? " " : ""}
-                  {it.source}
+                  {step === 5 ? <ClozeWord word={it.source} /> : it.source}
                 </span>
               ))}
           </div>
@@ -408,6 +474,12 @@ export default function Text() {
           onClick={() => setStep(4)}
         >
           4. Read {getLanguageName(data.source_language)}
+        </button>
+        <button
+          className={`step-btn${step === 5 ? " active" : ""}`}
+          onClick={() => setStep(5)}
+        >
+          5. Practice
         </button>
       </div>
 
