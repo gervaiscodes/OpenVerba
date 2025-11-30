@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Submit from './pages/Submit'
 import Text from './pages/Text'
 import Words from './pages/Words'
+import Stats from './pages/Stats'
 import { AudioSettingsProvider } from './context/AudioSettingsContext'
 import SpeedControlFooter from './components/SpeedControlFooter'
 import { StreakCounter } from './components/StreakCounter'
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/submit" element={<Submit />} />
           <Route path="/words" element={<Words />} />
           <Route path="/texts/:id" element={<Text />} />
+          <Route path="/stats" element={<Stats />} />
         </Routes>
         <SpeedControlFooter />
       </div>

@@ -39,4 +39,14 @@ export class CompletionController {
       return reply.status(500).send({ error: "Failed to get streak" });
     }
   }
+
+  static async getStats(_request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const stats = CompletionService.getCompletionStats();
+      return reply.send({ stats });
+    } catch (error) {
+      _request.log.error(error);
+      return reply.status(500).send({ error: "Failed to get completion stats" });
+    }
+  }
 }

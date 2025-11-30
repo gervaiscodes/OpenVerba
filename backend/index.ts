@@ -40,6 +40,7 @@ fastify.get("/api/words", WordController.getAll);
 // Completion routes
 fastify.post("/api/completions", CompletionController.create);
 fastify.get("/api/completions/streak", CompletionController.getStreak);
+fastify.get("/api/completions/stats", CompletionController.getStats);
 
 async function start() {
   try {
