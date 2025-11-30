@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../config/api";
+import { Firework } from "./Firework";
 
 export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
   const [value, setValue] = useState("");
+  const [showFirework, setShowFirework] = useState(false);
   const hasSubmitted = useRef(false);
 
   // If word is too short or punctuation, just show it
@@ -17,6 +19,10 @@ export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
 
   useEffect(() => {
     if (isCorrect) {
+      if (!hasSubmitted.current) {
+        setShowFirework(true);
+        setTimeout(() => setShowFirework(false), 1000);
+      }
       if (wordId && !hasSubmitted.current) {
         hasSubmitted.current = true;
         console.log("Making API call to record completion for word_id:", wordId);
@@ -51,7 +57,8 @@ export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
   }, [isCorrect, wordId]);
 
   return (
-    <span className="cloze-word" style={{ display: "inline-flex", alignItems: "baseline" }}>
+    <span className="cloze-word" style={{ display: "inline-flex", alignItems: "baseline", position: "relative" }}>
+      {showFirework && <Firework />}
       <span style={{ color: isCorrect ? "#4ade80" : isError ? "#ef4444" : "inherit", transition: "color 0.2s ease" }}>{firstLetter}</span>
       <input
         type="text"

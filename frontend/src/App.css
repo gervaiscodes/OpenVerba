@@ -439,3 +439,26 @@ textarea.form-control {
     padding: 0.2rem 0.5rem;
   }
 }
+
+@keyframes firework-pop {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+.firework-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: #4ade80; /* Green-400 to match correct state */
+  pointer-events: none;
+  opacity: 0;
+}
