@@ -224,7 +224,8 @@ export class TextService {
 
     // Get words for each sentence
     const wordsStmt = db.prepare(`
-      SELECT w.source_word, w.target_word, w.audio_url, sw.order_in_sentence
+      SELECT w.source_word, w.target_word, w.audio_url, sw.order_in_sentence,
+      (SELECT COUNT(*) FROM sentence_words sw2 WHERE sw2.word_id = w.id) as occurrence_count
       FROM sentence_words sw
       JOIN words w ON sw.word_id = w.id
       WHERE sw.sentence_id = ?
@@ -241,6 +242,7 @@ export class TextService {
           target_word: string;
           audio_url: string | null;
           order_in_sentence: number;
+          occurrence_count: number;
         }>;
 
         return {
@@ -253,6 +255,7 @@ export class TextService {
             source: word.source_word,
             target: word.target_word,
             audio_url: word.audio_url,
+            occurrence_count: word.occurrence_count,
           })),
         };
       }),

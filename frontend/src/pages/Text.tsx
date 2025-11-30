@@ -10,6 +10,7 @@ type AlignmentItem = {
   source: string;
   target: string;
   audio_url?: string;
+  occurrence_count?: number;
 };
 
 type AlignmentSentence = {
@@ -217,7 +218,7 @@ function SentenceAlignment({
                     For now, Step 3 is the only one with showTokens=true.
                 */}
                 <div className="src">{it.target}</div>
-                <div className={`tgt${idx === 0 ? " first-word" : ""}`}>
+                <div className={`tgt${idx === 0 ? " first-word" : ""}${it.occurrence_count === 1 ? " new-word" : ""}`}>
                   {it.source}
                 </div>
               </div>
@@ -260,7 +261,9 @@ function SentenceAlignment({
                   className={`srcw${idx === 0 ? " first-word" : ""}${
                     hoveredOrder === it.order ? " highlight" : ""
                   }`}
-                  style={{ cursor: config.allowWordClick ? "pointer" : "default" }}
+                  style={{
+                    cursor: config.allowWordClick ? "pointer" : "default",
+                  }}
                   onMouseEnter={() => setHoveredOrder(it.order)}
                   onMouseLeave={() => setHoveredOrder(null)}
                   onClick={(e) => {
