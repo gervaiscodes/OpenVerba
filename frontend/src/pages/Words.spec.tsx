@@ -66,6 +66,7 @@ describe('Words', () => {
           target_word: 'hola',
           source_language: 'en',
           occurrence_count: 5,
+          completion_count: 2,
           audio_url: '/audio/hello.mp3',
         },
         {
@@ -74,6 +75,7 @@ describe('Words', () => {
           target_word: 'mundo',
           source_language: 'en',
           occurrence_count: 3,
+          completion_count: 0,
         },
       ],
       fr: [
@@ -83,6 +85,7 @@ describe('Words', () => {
           target_word: 'salut',
           source_language: 'fr',
           occurrence_count: 2,
+          completion_count: 0,
         },
       ],
     };
@@ -106,13 +109,13 @@ describe('Words', () => {
       expect(screen.getByText('mundo')).toBeInTheDocument();
       expect(screen.getByText('bonjour')).toBeInTheDocument();
       expect(screen.getByText('salut')).toBeInTheDocument();
-      expect(screen.getByText('5 uses')).toBeInTheDocument();
-      expect(screen.getByText('3 uses')).toBeInTheDocument();
-      expect(screen.getByText('2 uses')).toBeInTheDocument();
+      expect(screen.getByText('5 appearances')).toBeInTheDocument();
+      expect(screen.getByText('3 appearances')).toBeInTheDocument();
+      expect(screen.getByText('2 appearances')).toBeInTheDocument();
     });
   });
 
-  it('displays singular "use" for occurrence_count of 1', async () => {
+  it('displays singular "appearance" for occurrence_count of 1', async () => {
     const mockData = {
       en: [
         {
@@ -121,6 +124,7 @@ describe('Words', () => {
           target_word: 'raro',
           source_language: 'en',
           occurrence_count: 1,
+          completion_count: 0,
         },
       ],
     };
@@ -135,7 +139,7 @@ describe('Words', () => {
     render(<Words />);
 
     await waitFor(() => {
-      expect(screen.getByText('1 use')).toBeInTheDocument();
+      expect(screen.getByText('1 appearance')).toBeInTheDocument();
     });
   });
 });

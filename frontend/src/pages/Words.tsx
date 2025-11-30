@@ -11,6 +11,7 @@ type Word = {
   target_word: string;
   source_language: string;
   occurrence_count: number;
+  completion_count: number;
   audio_url?: string;
 };
 
@@ -100,7 +101,7 @@ function WordItem({ word }: { word: Word }) {
           </p>
         </div>
       </div>
-      <div>
+      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
         <span
           className="badge"
           style={{
@@ -110,8 +111,21 @@ function WordItem({ word }: { word: Word }) {
           }}
         >
           {word.occurrence_count}{" "}
-          {word.occurrence_count === 1 ? "use" : "uses"}
+          {word.occurrence_count === 1 ? "appearance" : "appearances"}
         </span>
+        {word.completion_count > 0 && (
+          <span
+            className="badge"
+            style={{
+              background: "#f97316",
+              color: "#ffffff",
+              fontSize: "0.75rem",
+            }}
+          >
+            {word.completion_count}{" "}
+            {word.completion_count === 1 ? "completion" : "completions"}
+          </span>
+        )}
       </div>
     </li>
   );
@@ -164,18 +178,9 @@ export default function Words() {
 
   return (
     <div className="container">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <h1 className="title" style={{ margin: 0, textAlign: "left" }}>
-          Words
-        </h1>
-      </div>
+      <h1 className="title">
+        Words
+      </h1>
 
       {Object.keys(groupedWords).length === 0 ? (
         <div
