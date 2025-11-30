@@ -366,8 +366,8 @@ export default function Text() {
         throw new Error("Failed to delete text");
       }
 
-      // Redirect to texts list
-      navigate("/texts");
+      // Redirect to home
+      navigate("/");
     } catch (error) {
       console.error("Delete failed:", error);
       alert("Failed to delete text. Please try again.");
