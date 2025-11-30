@@ -47,6 +47,13 @@ export const SCHEMA = `
     FOREIGN KEY (sentence_id) REFERENCES sentences(id),
     FOREIGN KEY (word_id) REFERENCES words(id)
   );
+
+  CREATE TABLE IF NOT EXISTS completions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    word_id INTEGER NOT NULL,
+    completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (word_id) REFERENCES words(id)
+  );
 `;
 
 // Create database schema

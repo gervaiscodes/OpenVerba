@@ -5,6 +5,7 @@ import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
 import { TextController } from "./controllers/textController.js";
 import { WordController } from "./controllers/wordController.js";
+import { CompletionController } from "./controllers/completionController.js";
 
 const fastify = Fastify({
   logger: true,
@@ -35,6 +36,9 @@ fastify.post("/api/generate", TextController.generate);
 
 // Word routes
 fastify.get("/api/words", WordController.getAll);
+
+// Completion routes
+fastify.post("/api/completions", CompletionController.create);
 
 async function start() {
   try {

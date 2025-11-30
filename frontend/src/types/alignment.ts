@@ -1,4 +1,5 @@
 export type AlignmentItem = {
+  id: number;
   order: number;
   source: string;
   target: string;

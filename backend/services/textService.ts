@@ -224,7 +224,7 @@ export class TextService {
 
     // Get words for each sentence
     const wordsStmt = db.prepare(`
-      SELECT w.source_word, w.target_word, w.audio_url, sw.order_in_sentence,
+      SELECT w.id, w.source_word, w.target_word, w.audio_url, sw.order_in_sentence,
       (SELECT COUNT(*) FROM sentence_words sw2 WHERE sw2.word_id = w.id) as occurrence_count
       FROM sentence_words sw
       JOIN words w ON sw.word_id = w.id
@@ -238,6 +238,7 @@ export class TextService {
       original_text: text.text,
       sentences: sentences.map((sentence) => {
         const words = wordsStmt.all(sentence.id) as Array<{
+          id: number;
           source_word: string;
           target_word: string;
           audio_url: string | null;
@@ -251,6 +252,7 @@ export class TextService {
           target_sentence: sentence.target_sentence,
           audio_url: sentence.audio_url,
           items: words.map((word) => ({
+            id: word.id,
             order: word.order_in_sentence,
             source: word.source_word,
             target: word.target_word,

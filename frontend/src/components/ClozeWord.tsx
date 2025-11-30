@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { API_BASE_URL } from "../config/api";
 
-export function ClozeWord({ word }: { word: string }) {
+export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
   const [value, setValue] = useState("");
+  const hasSubmitted = useRef(false);
 
   // If word is too short or punctuation, just show it
   if (word.length <= 1 || /^[.,!?;:]+$/.test(word)) {
@@ -15,6 +17,30 @@ export function ClozeWord({ word }: { word: string }) {
 
   useEffect(() => {
     if (isCorrect) {
+      if (wordId && !hasSubmitted.current) {
+        hasSubmitted.current = true;
+        console.log("Making API call to record completion for word_id:", wordId);
+        fetch(`${API_BASE_URL}/api/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ word_id: wordId }),
+        })
+          .then((res) => {
+            console.log("API response:", res.status, res.statusText);
+            return res.json();
+          })
+          .then((data) => console.log("API response data:", data))
+          .catch((e) => {
+            // Silently handle errors to not disrupt user experience
+            console.error("Failed to record completion:", e);
+          });
+      } else {
+        console.log("Skipping API call - wordId:", wordId, "hasSubmitted:", hasSubmitted.current);
+      }
+
+      // Move to next input
       const inputs = Array.from(document.querySelectorAll(".cloze-input"));
       const currentInput = document.activeElement;
       const currentIndex = inputs.indexOf(currentInput as Element);
@@ -22,7 +48,7 @@ export function ClozeWord({ word }: { word: string }) {
         (inputs[currentIndex + 1] as HTMLElement).focus();
       }
     }
-  }, [isCorrect]);
+  }, [isCorrect, wordId]);
 
   return (
     <span className="cloze-word" style={{ display: "inline-flex", alignItems: "baseline" }}>

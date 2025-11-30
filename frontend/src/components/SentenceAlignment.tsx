@@ -140,7 +140,7 @@ export function SentenceAlignment({
                 }
               >
                 {idx > 0 && needsSpaceBefore(it.source) ? " " : ""}
-                {step === 5 ? <ClozeWord word={it.source} /> : it.source}
+                {step === 5 ? <ClozeWord word={it.source} wordId={it.id} /> : it.source}
               </span>
             ))}
           </div>
@@ -151,19 +151,7 @@ export function SentenceAlignment({
             className="text-target"
             style={config.targetStyle}
           >
-            {sortedItems.map((it, idx) => (
-              <span
-                key={`t-${it.order}`}
-                style={{
-                  textDecoration: step === 1 && (it.occurrence_count || 0) === 1 ? "underline dotted" : "none",
-                  textUnderlineOffset: "4px",
-                  textDecorationColor: "var(--muted-foreground)"
-                }}
-              >
-                {idx > 0 && needsSpaceBefore(it.target) ? " " : ""}
-                {it.target}
-              </span>
-            ))}
+            {sentence.target_sentence}
           </div>
         )}
       </div>
