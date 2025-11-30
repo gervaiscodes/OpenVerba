@@ -6,6 +6,7 @@ import Text from './pages/Text'
 import Words from './pages/Words'
 import { AudioSettingsProvider } from './context/AudioSettingsContext'
 import SpeedControlFooter from './components/SpeedControlFooter'
+import { StreakCounter } from './components/StreakCounter'
 
 export default function App() {
   return (
@@ -15,10 +16,13 @@ export default function App() {
           <Link to="/" style={{ textDecoration: 'none' }}>
             <h2 className="title">OpenVerba</h2>
           </Link>
-          <nav className="app-nav">
-            <Link to="/words" className="badge">Words</Link>
-            <Link to="/submit" className="badge badge-alt">New text</Link>
-          </nav>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <nav className="app-nav">
+              <Link to="/words" className="badge">Words</Link>
+              <Link to="/submit" className="badge badge-alt">New text</Link>
+            </nav>
+             <StreakCounter />
+          </div>
         </header>
         <Routes>
           <Route path="/" element={<Home />} />

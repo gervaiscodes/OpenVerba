@@ -30,4 +30,13 @@ export class CompletionController {
       return reply.status(500).send({ error: "Failed to create completion" });
     }
   }
+
+  static async getStreak(_request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const streak = CompletionService.getStreak();
+      return reply.send({ streak });
+    } catch (error) {
+      return reply.status(500).send({ error: "Failed to get streak" });
+    }
+  }
 }
