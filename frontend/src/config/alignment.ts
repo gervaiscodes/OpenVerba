@@ -18,7 +18,7 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
     showSource: false,
     showTarget: true,
     showAudioBtn: true,
-    audioBtnStyle: { left: 0, top: "50%" },
+    audioBtnStyle: { left: 0, top: "50%", transform: "translate(0, -50%)" },
     autoPlay: true,
     containerStyle: {
       paddingLeft: "3rem",
@@ -54,7 +54,7 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
     showSource: true,
     showTarget: false,
     showAudioBtn: true,
-    audioBtnStyle: { left: 0, top: "50%" },
+    audioBtnStyle: { left: 0, top: "50%", transform: "translate(0, -50%)" },
     autoPlay: false,
     containerStyle: {
       paddingLeft: "3rem",
