@@ -19,10 +19,12 @@ export default function App() {
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <nav className="app-nav">
+              <Link to="/stats" className="badge">
+                 <StreakCounter />
+              </Link>
               <Link to="/words" className="badge">Words</Link>
               <Link to="/submit" className="badge badge-alt">New text</Link>
             </nav>
-            <StreakCounter />
           </div>
         </header>
         <Routes>

@@ -468,19 +468,9 @@ textarea.form-control {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.25rem 0.6rem;
-  background: #18181b;
-  border: 1px solid #27272a;
-  border-radius: 20px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #71717a;
   transition: all 0.2s ease;
-}
-
-.streak-counter:hover {
-  background: #27272a;
-  border-color: #3f3f46;
 }
 
 .streak-flame {

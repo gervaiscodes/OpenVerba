@@ -21,10 +21,6 @@ export function StreakCounter() {
     <div
       className="streak-counter"
       title={isActive ? `${streak} day streak!` : "No active streak"}
-      onClick={() => navigate("/stats")}
-      style={{
-        cursor: "pointer",
-      }}
     >
       <span className={`streak-flame${isActive ? " active" : ""}`}>
         🔥
