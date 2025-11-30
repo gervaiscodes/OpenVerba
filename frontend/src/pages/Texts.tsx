@@ -77,7 +77,7 @@ export default function Texts() {
                     opacity: 0.7,
                   }}
                 >
-                  {new Date(t.created_at).toLocaleString()}
+                  {new Date(t.created_at).toLocaleDateString()}
                 </span>
               </div>
               <div style={{ whiteSpace: "pre-wrap" }}>{t.text}</div>
