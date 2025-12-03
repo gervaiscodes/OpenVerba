@@ -4,6 +4,7 @@ import { API_BASE_URL } from "../config/api";
 import { STEP_CONFIG } from "../config/alignment";
 import type { AlignmentSentence } from "../types/alignment";
 import { ClozeWord } from "./ClozeWord";
+import { PronunciationPractice } from "./PronunciationPractice";
 import { PlayIcon } from "./icons/PlayIcon";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { sortByOrder, needsSpaceBefore } from "../utils/text";
@@ -14,14 +15,17 @@ export function SentenceAlignment({
   isActive,
   onPlayEnd,
   step,
+  language,
 }: {
   sentence: AlignmentSentence;
   showTarget: boolean;
   isActive?: boolean;
   onPlayEnd?: () => void;
   step: number;
+  language: string;
 }) {
   const [hoveredOrder, setHoveredOrder] = useState<number | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const wordAudioRef = useRef<HTMLAudioElement | null>(null);
   const { playbackRate } = useAudioSettings();
@@ -118,6 +122,40 @@ export function SentenceAlignment({
           </button>
         )}
 
+        {step === 6 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsRecording(!isRecording);
+            }}
+            className={`record-btn ${isRecording ? 'recording' : ''}`}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: '50%',
+              transform: 'translate(0, -50%)',
+              background: isRecording ? '#ef4444' : '#3f3f46',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '48px',
+              height: '48px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            title={isRecording ? "Stop recording" : "Start recording"}
+          >
+            {isRecording ? (
+              <div style={{ width: '16px', height: '16px', background: 'white', borderRadius: '2px' }} />
+            ) : (
+              <div style={{ width: '16px', height: '16px', background: '#ef4444', borderRadius: '50%' }} />
+            )}
+          </button>
+        )}
+
         {config.showSource && (
           <div className="text-source">
             {sortedItems.map((it, idx) => (
@@ -153,6 +191,14 @@ export function SentenceAlignment({
           >
             {sentence.target_sentence}
           </div>
+        )}
+
+        {step === 6 && (
+          <PronunciationPractice
+            targetText={sentence.source_sentence}
+            language={language}
+            isRecording={isRecording}
+          />
         )}
       </div>
     </div>

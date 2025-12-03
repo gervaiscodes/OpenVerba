@@ -10,6 +10,7 @@
 - 🔊 **Audio Pronunciation**: Listen to sentences and words with natural-sounding voices
 - 📊 **Word Tracking**: Track word frequency and usage across all your texts, with completion counts showing how many times you've practiced each word
 - ✏️ **Cloze Completion Practice**: Practice vocabulary with interactive cloze exercises where you complete words by typing missing letters
+- 🎤 **Pronunciation Practice**: Practice speaking with real-time speech recognition and accuracy scoring
 - 🔥 **Streak Tracking**: Track your daily practice streak to stay motivated (click the streak counter to view detailed statistics)
 - 📈 **Practice Statistics**: View completion trends with a visual graph showing your practice activity over the last 30 days
 - 💾 **Persistent Storage**: All translations and audio files are saved locally
@@ -304,21 +305,29 @@ OpenVerba/
 
 ## Learning Flow
 
-Each text follows a structured 5-step learning process:
+Each text follows a structured 6-step learning process:
 
 1. **Read Target**: Read the translation in your native language
 2. **Listen**: Listen to the audio pronunciation while reading the translation
 3. **Dual**: View both source and target languages side-by-side with word-by-word alignment
 4. **Read Source**: Read the original text in the language you're learning
-5. **Practice**: Complete cloze exercises where you type the missing letters of each word (only the first letter is shown)
+5. **Write**: Complete cloze exercises where you type the missing letters of each word (only the first letter is shown)
+6. **Speak**: Practice pronunciation with real-time speech recognition and accuracy scoring
 
-The Practice step (step 5) uses cloze completion exercises:
+The Write step (step 5) uses cloze completion exercises:
 - Each word displays only its first letter
 - You type the remaining letters to complete the word
 - Correct completions trigger a celebration animation
 - Completions are automatically tracked to maintain your practice streak
 - The streak counter (🔥) in the navigation bar shows your consecutive days of practice
 - Click the streak counter to view detailed statistics and completion trends
+
+The Speak step (step 6) uses speech recognition for pronunciation practice:
+- Click the record button to start recording your pronunciation
+- Speak the sentence shown on screen
+- The app uses the Web Speech API to recognize your speech
+- You'll receive an accuracy score comparing your pronunciation to the target text
+- Scores above 80% are considered excellent, 50-80% are good, and below 50% need improvement
 
 **Statistics Page:**
 - Accessible by clicking the streak counter in the navigation bar

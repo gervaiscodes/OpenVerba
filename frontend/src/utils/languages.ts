@@ -29,3 +29,18 @@ export const LANGUAGES: Language[] = SUPPORTED_LANGUAGE_CODES.map((code) => ({
 export function getLanguageName(code: string): string {
   return ISO6391.getName(code) || code;
 }
+
+// Map ISO 639-1 codes to BCP 47 codes for SpeechRecognition
+export function getBCP47Code(code: string): string {
+  const map: Record<string, string> = {
+    en: "en-US",
+    es: "es-ES",
+    fr: "fr-FR",
+    de: "de-DE",
+    it: "it-IT",
+    pt: "pt-PT",
+    pl: "pl-PL",
+    nl: "nl-NL",
+  };
+  return map[code] || "en-US";
+}

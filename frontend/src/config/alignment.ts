@@ -64,4 +64,19 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
     },
     allowWordClick: false,
   },
+  6: {
+    // Speak (Pronunciation)
+    showTokens: false,
+    showSource: false, // Hidden because PronunciationPractice component handles display
+    showTarget: false,
+    showAudioBtn: false,
+    autoPlay: false,
+    containerStyle: {
+      paddingLeft: "3rem",
+      minHeight: "2.5rem",
+      borderTop: "none",
+      paddingTop: 0,
+    },
+    allowWordClick: false,
+  },
 };

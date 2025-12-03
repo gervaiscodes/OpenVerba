@@ -1,7 +1,7 @@
 import "../App.css";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getLanguageName } from "../utils/languages";
+import { getLanguageName, getBCP47Code } from "../utils/languages";
 import { API_BASE_URL } from "../config/api";
 
 import { SentenceAlignment } from "../components/SentenceAlignment";
@@ -128,7 +128,13 @@ export default function Text() {
           className={`step-btn${step === 5 ? " active" : ""}`}
           onClick={() => setStep(5)}
         >
-          5. Practice
+          5. Write
+        </button>
+        <button
+          className={`step-btn${step === 6 ? " active" : ""}`}
+          onClick={() => setStep(6)}
+        >
+          6. Speak
         </button>
       </div>
 
@@ -141,7 +147,7 @@ export default function Text() {
             {showTarget ? "Hide target sentences" : "Show target sentences"}
           </button>
         )}
-        {step !== 1 && step !== 4 && (
+        {step !== 1 && step !== 4 && step !== 5 && step !== 6 && (
           <button
             style={{ marginLeft: ".75rem" }}
             onClick={handlePlayAll}
@@ -159,6 +165,7 @@ export default function Text() {
           isActive={playingIndex === idx}
           onPlayEnd={handleSentenceEnd}
           step={step}
+          language={getBCP47Code(data.source_language)}
         />
       ))}
 
