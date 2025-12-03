@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { calculateSimilarity } from '../lib/calculateSimilarity';
+import { compareWords, type WordResult } from '../lib/compareWords';
 
 interface PronunciationPracticeProps {
   targetText: string;
@@ -16,6 +17,7 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
   const [accumulatedTranscript, setAccumulatedTranscript] = useState('');
   const [score, setScore] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [wordResults, setWordResults] = useState<WordResult[]>([]);
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
@@ -71,11 +73,21 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
     }
   }, [isRecording, transcript, targetText, onComplete]);
 
+  // Update word results when transcript changes
+  useEffect(() => {
+    if (transcript) {
+      setWordResults(compareWords(targetText, transcript));
+    } else {
+      setWordResults([]);
+    }
+  }, [transcript, targetText]);
+
   // Reset accumulated transcript when target text changes (new sentence)
   useEffect(() => {
     setAccumulatedTranscript('');
     setTranscript('');
     setScore(null);
+    setWordResults([]);
   }, [targetText]);
 
   // Handle recording state changes from parent
@@ -88,6 +100,7 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
         setTranscript('');
         setScore(null);
         setError(null);
+        setWordResults([]);
       }
       try {
         recognitionRef.current?.start();
@@ -118,7 +131,21 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
         {isRecording ? (
           <span style={{ color: '#ef4444', fontStyle: 'italic' }}>Listening... {transcript}</span>
         ) : transcript ? (
-           <span style={{ color: '#a1a1aa' }}>You said: "{transcript}"</span>
+           <div style={{ color: '#a1a1aa' }}>
+             You said: "
+             {wordResults.map((w, i) => (
+               <span
+                 key={i}
+                 style={{
+                   color: w.status === 'correct' ? '#4ade80' : w.status === 'almost' ? '#fbbf24' : '#ef4444',
+                   marginRight: '4px'
+                 }}
+               >
+                 {w.word}
+               </span>
+             ))}
+             "
+           </div>
         ) : (
           <span style={{ color: '#71717a' }}>Click record and speak...</span>
         )}
