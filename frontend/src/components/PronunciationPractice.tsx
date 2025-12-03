@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { calculateSimilarity } from '../lib/calculateSimilarity';
 import { compareWords, type WordResult } from '../lib/compareWords';
+import { Firework } from './Firework';
 
 interface PronunciationPracticeProps {
   targetText: string;
@@ -66,10 +67,13 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
 
 
   useEffect(() => {
-    if (!isRecording && transcript) {
+    if (transcript) {
       const calculatedScore = calculateSimilarity(targetText, transcript);
       setScore(calculatedScore);
-      if (onComplete) onComplete(calculatedScore);
+
+      if (!isRecording && onComplete) {
+        onComplete(calculatedScore);
+      }
     }
   }, [isRecording, transcript, targetText, onComplete]);
 
@@ -128,24 +132,28 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
       </div>
 
       <div style={{ flex: 1 }}>
-        {isRecording ? (
-          <span style={{ color: '#ef4444', fontStyle: 'italic' }}>Listening... {transcript}</span>
-        ) : transcript ? (
+        {transcript ? (
            <div style={{ color: '#a1a1aa' }}>
+             {isRecording && <span style={{ color: '#ef4444', fontStyle: 'italic', marginRight: '0.5rem' }}>Listening...</span>}
              You said: "
              {wordResults.map((w, i) => (
                <span
                  key={i}
                  style={{
                    color: w.status === 'correct' ? '#4ade80' : w.status === 'almost' ? '#fbbf24' : '#ef4444',
-                   marginRight: '4px'
+                   marginRight: '4px',
+                   position: 'relative',
+                   display: 'inline-block'
                  }}
                >
+                 {w.status === 'correct' && <Firework />}
                  {w.word}
                </span>
              ))}
              "
            </div>
+        ) : isRecording ? (
+          <span style={{ color: '#ef4444', fontStyle: 'italic' }}>Listening...</span>
         ) : (
           <span style={{ color: '#71717a' }}>Click record and speak...</span>
         )}
