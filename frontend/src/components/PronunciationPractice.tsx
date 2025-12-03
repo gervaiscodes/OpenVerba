@@ -15,7 +15,6 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
   const isRecording = externalIsRecording !== undefined ? externalIsRecording : internalIsRecording;
   const setIsRecording = externalIsRecording !== undefined ? (() => {}) : setInternalIsRecording;
   const [transcript, setTranscript] = useState('');
-  const [accumulatedTranscript, setAccumulatedTranscript] = useState('');
   const [score, setScore] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [wordResults, setWordResults] = useState<WordResult[]>([]);
@@ -34,7 +33,8 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
         let interimTranscript = '';
         let finalTranscript = '';
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        // Iterate from 0 to get the full transcript of the current session
+        for (let i = 0; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalTranscript += transcript;
@@ -43,12 +43,7 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
           }
         }
 
-        // Combine accumulated transcript with current session
-        const currentTranscript = finalTranscript || interimTranscript;
-        const fullTranscript = accumulatedTranscript
-          ? accumulatedTranscript + ' ' + currentTranscript
-          : currentTranscript;
-        setTranscript(fullTranscript);
+        setTranscript(finalTranscript + interimTranscript);
       };
 
       recognitionRef.current.onerror = (event: any) => {
@@ -63,7 +58,7 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
     } else {
       setError('Speech recognition not supported in this browser.');
     }
-  }, [accumulatedTranscript]);
+  }, []); // No dependencies needed as we don't use accumulatedTranscript anymore
 
 
   useEffect(() => {
@@ -86,9 +81,8 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
     }
   }, [transcript, targetText]);
 
-  // Reset accumulated transcript when target text changes (new sentence)
+  // Reset when target text changes (new sentence)
   useEffect(() => {
-    setAccumulatedTranscript('');
     setTranscript('');
     setScore(null);
     setWordResults([]);
@@ -99,13 +93,12 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
     if (externalIsRecording === undefined) return; // Only respond to external control
 
     if (isRecording) {
-      // Only clear if starting completely fresh (no accumulated transcript)
-      if (!accumulatedTranscript) {
-        setTranscript('');
-        setScore(null);
-        setError(null);
-        setWordResults([]);
-      }
+      // Always start fresh when recording starts
+      setTranscript('');
+      setScore(null);
+      setError(null);
+      setWordResults([]);
+
       try {
         recognitionRef.current?.start();
       } catch (e) {
@@ -113,10 +106,6 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
         setError("Failed to start recording. Please try again.");
       }
     } else {
-      // When stopping, save the current transcript to accumulated
-      if (transcript) {
-        setAccumulatedTranscript(transcript);
-      }
       try {
         recognitionRef.current?.stop();
       } catch (e) {
