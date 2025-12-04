@@ -7,6 +7,9 @@ const db = new Database("database.db");
 // Enable foreign key constraints
 db.pragma("foreign_keys = ON");
 
+// Enable WAL mode for better concurrency
+db.pragma("journal_mode = WAL");
+
 export const SCHEMA = `
   CREATE TABLE IF NOT EXISTS texts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,6 +54,7 @@ export const SCHEMA = `
   CREATE TABLE IF NOT EXISTS completions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     word_id INTEGER NOT NULL,
+    method TEXT DEFAULT 'writing',
     completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (word_id) REFERENCES words(id)
   );

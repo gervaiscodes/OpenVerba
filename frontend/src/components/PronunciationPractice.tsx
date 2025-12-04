@@ -3,14 +3,18 @@ import { calculateSimilarity } from '../lib/calculateSimilarity';
 import { compareWords, type WordResult } from '../lib/compareWords';
 import { Firework } from './Firework';
 
+import { API_BASE_URL } from "../config/api";
+import { useCoin } from "../context/CoinContext";
+
 interface PronunciationPracticeProps {
   targetText: string;
   language: string;
+  words: { id: number; word: string }[];
   onComplete?: (score: number) => void;
   isRecording?: boolean;
 }
 
-export function PronunciationPractice({ targetText, language, onComplete, isRecording: externalIsRecording }: PronunciationPracticeProps) {
+export function PronunciationPractice({ targetText, language, words, onComplete, isRecording: externalIsRecording }: PronunciationPracticeProps) {
   const [internalIsRecording, setInternalIsRecording] = useState(false);
   const isRecording = externalIsRecording !== undefined ? externalIsRecording : internalIsRecording;
   const setIsRecording = externalIsRecording !== undefined ? (() => {}) : setInternalIsRecording;
@@ -19,6 +23,8 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
   const [error, setError] = useState<string | null>(null);
   const [wordResults, setWordResults] = useState<WordResult[]>([]);
   const recognitionRef = useRef<any>(null);
+  const completedWordIds = useRef<Set<number>>(new Set());
+  const { increment } = useCoin();
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -72,20 +78,47 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
     }
   }, [isRecording, transcript, targetText, onComplete]);
 
-  // Update word results when transcript changes
+  // Update word results when transcript changes and handle completions
   useEffect(() => {
     if (transcript) {
-      setWordResults(compareWords(targetText, transcript));
+      const results = compareWords(targetText, transcript);
+      setWordResults(results);
+
+      // Check for correct words and trigger completion
+      results.forEach(result => {
+        if (result.status === 'correct' && result.targetIndex !== undefined) {
+          const word = words[result.targetIndex];
+          if (word && !completedWordIds.current.has(word.id)) {
+            completedWordIds.current.add(word.id);
+
+            // Call API
+            fetch(`${API_BASE_URL}/api/completions`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ word_id: word.id, method: "speaking" }),
+            })
+              .then((res) => {
+                if (res.ok) {
+                  increment();
+                }
+              })
+              .catch((e) => console.error("Failed to record speaking completion:", e));
+          }
+        }
+      });
     } else {
       setWordResults([]);
     }
-  }, [transcript, targetText]);
+  }, [transcript, targetText, words, increment]);
 
   // Reset when target text changes (new sentence)
   useEffect(() => {
     setTranscript('');
     setScore(null);
     setWordResults([]);
+    completedWordIds.current.clear();
   }, [targetText]);
 
   // Handle recording state changes from parent
@@ -98,6 +131,7 @@ export function PronunciationPractice({ targetText, language, onComplete, isReco
       setScore(null);
       setError(null);
       setWordResults([]);
+      completedWordIds.current.clear();
 
       try {
         recognitionRef.current?.start();

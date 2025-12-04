@@ -3,6 +3,7 @@ import { CompletionService } from "../services/completionService.js";
 
 interface CreateCompletionBody {
   word_id: number;
+  method?: "writing" | "speaking";
 }
 
 export class CompletionController {
@@ -11,7 +12,7 @@ export class CompletionController {
     reply: FastifyReply
   ) {
     try {
-      const { word_id } = request.body;
+      const { word_id, method } = request.body;
 
       if (!word_id || typeof word_id !== "number") {
         return reply
@@ -19,7 +20,7 @@ export class CompletionController {
           .send({ error: "word_id is required and must be a number" });
       }
 
-      CompletionService.createCompletion(word_id);
+      CompletionService.createCompletion(word_id, method);
 
       return reply.status(201).send({ success: true });
     } catch (error) {

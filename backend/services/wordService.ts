@@ -10,7 +10,8 @@ export class WordService {
         w.source_language,
         w.audio_url,
         COUNT(DISTINCT s.text_id) as occurrence_count,
-        COUNT(DISTINCT c.id) as completion_count
+        COUNT(DISTINCT CASE WHEN c.method = 'writing' THEN c.id END) as writing_count,
+        COUNT(DISTINCT CASE WHEN c.method = 'speaking' THEN c.id END) as speaking_count
       FROM words w
       JOIN sentence_words sw ON w.id = sw.word_id
       JOIN sentences s ON sw.sentence_id = s.id
@@ -26,7 +27,8 @@ export class WordService {
       source_language: string;
       audio_url: string | null;
       occurrence_count: number;
-      completion_count: number;
+      writing_count: number;
+      speaking_count: number;
     }>;
 
     const punctuationRegex = /^[\p{P}\p{S}]+$/u;

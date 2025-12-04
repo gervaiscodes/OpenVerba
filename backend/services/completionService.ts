@@ -1,7 +1,10 @@
 import db from "../lib/db.js";
 
 export class CompletionService {
-  static createCompletion(wordId: number): void {
+  static createCompletion(
+    wordId: number,
+    method: "writing" | "speaking" = "writing"
+  ): void {
     // Verify word exists
     const word = db.prepare("SELECT id FROM words WHERE id = ?").get(wordId);
 
@@ -10,7 +13,10 @@ export class CompletionService {
     }
 
     // Insert completion record
-    db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
+    db.prepare("INSERT INTO completions (word_id, method) VALUES (?, ?)").run(
+      wordId,
+      method
+    );
   }
 
   static getStreak(): number {

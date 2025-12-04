@@ -50,9 +50,32 @@ describe("CompletionService", () => {
       // Verify completion was created
       const completion = db
         .prepare("SELECT * FROM completions WHERE word_id = ?")
-        .get(wordId);
+        .get(wordId) as { word_id: number; method: string };
       expect(completion).toBeDefined();
       expect(completion).toHaveProperty("word_id", wordId);
+      expect(completion).toHaveProperty("method", "writing"); // Default
+    });
+
+    it("should create a completion with 'speaking' method", () => {
+      // Setup: Create a word
+      const wordId = Number(
+        db
+          .prepare(
+            `INSERT INTO words (source_word, target_word, source_language, target_language)
+           VALUES ('hello', 'hola', 'en', 'es')`
+          )
+          .run().lastInsertRowid
+      );
+
+      // Create completion with speaking method
+      CompletionService.createCompletion(wordId, "speaking");
+
+      // Verify completion was created with correct method
+      const completion = db
+        .prepare("SELECT * FROM completions WHERE word_id = ?")
+        .get(wordId) as { word_id: number; method: string };
+      expect(completion).toBeDefined();
+      expect(completion.method).toBe("speaking");
     });
 
     it("should throw an error when word does not exist", () => {
@@ -294,4 +317,3 @@ describe("CompletionService", () => {
     });
   });
 });
-

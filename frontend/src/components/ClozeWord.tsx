@@ -32,7 +32,7 @@ export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ word_id: wordId }),
+          body: JSON.stringify({ word_id: wordId, method: "writing" }),
         })
           .then((res) => {
             if (res.ok) {

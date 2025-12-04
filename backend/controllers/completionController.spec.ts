@@ -66,6 +66,39 @@ describe("CompletionController", () => {
       expect(completion).toBeDefined();
     });
 
+    it("should pass method parameter to service", async () => {
+      // Setup: Create a word first
+      const wordId = db
+        .prepare(
+          `INSERT INTO words (source_word, target_word, source_language, target_language)
+           VALUES ('hello', 'hola', 'en', 'es')`
+        )
+        .run().lastInsertRowid;
+
+      // Spy on CompletionService.createCompletion
+      const { CompletionService } = await import(
+        "../services/completionService.js"
+      );
+      const createSpy = vi.spyOn(CompletionService, "createCompletion");
+
+      const request = {
+        body: { word_id: wordId, method: "speaking" },
+        log: {
+          error: vi.fn(),
+        },
+      } as any;
+
+      const reply = {
+        status: vi.fn().mockReturnThis(),
+        send: vi.fn(),
+      } as any;
+
+      await CompletionController.create(request, reply);
+
+      expect(createSpy).toHaveBeenCalledWith(wordId, "speaking");
+      expect(reply.status).toHaveBeenCalledWith(201);
+    });
+
     it("should return 400 when word_id is missing", async () => {
       const request = {
         body: {},

@@ -197,6 +197,7 @@ export function SentenceAlignment({
           <PronunciationPractice
             targetText={sentence.source_sentence}
             language={language}
+            words={sortedItems.map(item => ({ id: item.id, word: item.source }))}
             isRecording={isRecording}
           />
         )}

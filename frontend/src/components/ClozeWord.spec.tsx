@@ -92,7 +92,7 @@ describe('ClozeWord', () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ word_id: 123 }),
+          body: JSON.stringify({ word_id: 123, method: "writing" }),
         })
       );
     });

@@ -5,6 +5,7 @@ export type WordStatus = "correct" | "almost" | "wrong";
 export interface WordResult {
   word: string;
   status: WordStatus;
+  targetIndex?: number;
 }
 
 export function compareWords(target: string, transcript: string): WordResult[] {
@@ -50,7 +51,6 @@ export function compareWords(target: string, transcript: string): WordResult[] {
   }
 
   // Backtrack to find alignment and assign statuses
-  const result: WordResult[] = [];
   let i = n;
   let j = m;
 
@@ -68,7 +68,11 @@ export function compareWords(target: string, transcript: string): WordResult[] {
       if (dp[i][j] === dp[i - 1][j - 1] + cost) {
         // Match or Substitution
         if (cost === 0) {
-          tempResults.push({ word: transcriptWords[j - 1], status: "correct" });
+          tempResults.push({
+            word: transcriptWords[j - 1],
+            status: "correct",
+            targetIndex: i - 1,
+          });
         } else {
           // Check for "almost" correct
           const similarity = calculateSimilarity(tWord, trWord);
@@ -77,9 +81,14 @@ export function compareWords(target: string, transcript: string): WordResult[] {
             tempResults.push({
               word: transcriptWords[j - 1],
               status: "almost",
+              targetIndex: i - 1,
             });
           } else {
-            tempResults.push({ word: transcriptWords[j - 1], status: "wrong" });
+            tempResults.push({
+              word: transcriptWords[j - 1],
+              status: "wrong",
+              targetIndex: i - 1,
+            });
           }
         }
         i--;

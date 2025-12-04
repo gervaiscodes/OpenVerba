@@ -11,7 +11,8 @@ type Word = {
   target_word: string;
   source_language: string;
   occurrence_count: number;
-  completion_count: number;
+  writing_count: number;
+  speaking_count: number;
   audio_url?: string;
 };
 
@@ -113,7 +114,20 @@ function WordItem({ word }: { word: Word }) {
           {word.occurrence_count}{" "}
           {word.occurrence_count === 1 ? "appearance" : "appearances"}
         </span>
-        {word.completion_count > 0 && (
+        {word.writing_count > 0 && (
+          <span
+            className="badge"
+            style={{
+              background: "#3b82f6",
+              color: "#ffffff",
+              fontSize: "0.75rem",
+            }}
+            title="Writing completions"
+          >
+            ✍️ {word.writing_count}
+          </span>
+        )}
+        {word.speaking_count > 0 && (
           <span
             className="badge"
             style={{
@@ -121,9 +135,9 @@ function WordItem({ word }: { word: Word }) {
               color: "#ffffff",
               fontSize: "0.75rem",
             }}
+            title="Speaking completions"
           >
-            {word.completion_count}{" "}
-            {word.completion_count === 1 ? "completion" : "completions"}
+            🗣️ {word.speaking_count}
           </span>
         )}
       </div>
