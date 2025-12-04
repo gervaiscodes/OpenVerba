@@ -16,6 +16,13 @@ vi.mock('../context/CoinContext', () => ({
   }),
 }));
 
+vi.mock('../context/StreakContext', () => ({
+  useStreak: () => ({
+    streak: 0,
+    refreshStreak: vi.fn(),
+  }),
+}));
+
 describe('ClozeWord', () => {
   beforeEach(() => {
     vi.clearAllMocks();

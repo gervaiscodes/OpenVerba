@@ -1,9 +1,7 @@
-import { useNavigate } from "react-router-dom";
 import { useStreak } from "../context/StreakContext";
 
 export function StreakCounter() {
   const { streak } = useStreak();
-  const navigate = useNavigate();
 
   if (streak === null) return null;
 
