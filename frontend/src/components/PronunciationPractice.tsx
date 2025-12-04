@@ -5,6 +5,7 @@ import { Firework } from './Firework';
 
 import { API_BASE_URL } from "../config/api";
 import { useCoin } from "../context/CoinContext";
+import { useStreak } from "../context/StreakContext";
 
 interface PronunciationPracticeProps {
   targetText: string;
@@ -25,6 +26,7 @@ export function PronunciationPractice({ targetText, language, words, onComplete,
   const recognitionRef = useRef<any>(null);
   const completedWordIds = useRef<Set<number>>(new Set());
   const { increment } = useCoin();
+  const { refreshStreak } = useStreak();
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -102,6 +104,7 @@ export function PronunciationPractice({ targetText, language, words, onComplete,
               .then((res) => {
                 if (res.ok) {
                   increment();
+                  refreshStreak();
                 }
               })
               .catch((e) => console.error("Failed to record speaking completion:", e));

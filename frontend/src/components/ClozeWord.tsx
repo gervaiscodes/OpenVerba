@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../config/api";
 import { Firework } from "./Firework";
 import { useCoin } from "../context/CoinContext";
+import { useStreak } from "../context/StreakContext";
 
 export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
   const [value, setValue] = useState("");
   const [showFirework, setShowFirework] = useState(false);
   const hasSubmitted = useRef(false);
   const { increment } = useCoin();
+  const { refreshStreak } = useStreak();
 
   // If word is too short or punctuation, just show it
   if (word.length <= 1 || /^[.,!?;:]+$/.test(word)) {
@@ -37,6 +39,7 @@ export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
           .then((res) => {
             if (res.ok) {
               increment();
+              refreshStreak();
             }
             return res.json();
           })

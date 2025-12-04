@@ -1,17 +1,9 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../config/api";
+import { useStreak } from "../context/StreakContext";
 
 export function StreakCounter() {
-  const [streak, setStreak] = useState<number | null>(null);
+  const { streak } = useStreak();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/completions/streak`)
-      .then((res) => res.json())
-      .then((data) => setStreak(data.streak))
-      .catch((err) => console.error("Failed to fetch streak:", err));
-  }, []);
 
   if (streak === null) return null;
 
