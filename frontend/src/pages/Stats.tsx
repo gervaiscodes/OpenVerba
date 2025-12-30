@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../config/api";
 import { CompletionGraph } from "../components/CompletionGraph";
+import { StatsSkeleton } from "../components/skeletons/StatsSkeleton";
 
 interface CompletionStat {
   date: string;
@@ -30,11 +31,7 @@ export default function Stats() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="container">
-        <div>Loading…</div>
-      </div>
-    );
+    return <StatsSkeleton />;
   }
 
   if (error) {

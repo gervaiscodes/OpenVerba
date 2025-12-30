@@ -4,6 +4,7 @@ import { useAudioSettings } from "../context/AudioSettingsContext";
 import { API_BASE_URL } from "../config/api";
 import { getLanguageName } from "../utils/languages";
 import { PlayIcon } from "../components/icons/PlayIcon";
+import { WordsSkeleton } from "../components/skeletons/WordsSkeleton";
 
 type Word = {
   id: number;
@@ -169,14 +170,7 @@ export default function Words() {
   }, []);
 
   if (loading) {
-    return (
-      <div
-        className="container"
-        style={{ textAlign: "center", color: "#a1a1aa" }}
-      >
-        Loading words...
-      </div>
-    );
+    return <WordsSkeleton />;
   }
 
   if (error) {

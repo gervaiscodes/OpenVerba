@@ -6,6 +6,7 @@ import { API_BASE_URL } from "../config/api";
 
 import { SentenceAlignment } from "../components/SentenceAlignment";
 import type { AlignmentData, AlignmentSentence } from "../types/alignment";
+import { TextDetailSkeleton } from "../components/skeletons/TextDetailSkeleton";
 
 
 
@@ -45,7 +46,7 @@ export default function Text() {
     };
   }, [id]);
 
-  if (!data && !error) return <div>Loading…</div>;
+  if (!data && !error) return <TextDetailSkeleton />;
   if (error) return <div style={{ color: "crimson" }}>Error: {error}</div>;
   if (!data) return null;
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
 import { getLanguageName } from "../utils/languages";
+import { TextListSkeleton } from "../components/skeletons/TextListSkeleton";
 
 type Text = {
   id: number;
@@ -45,7 +46,7 @@ export default function Texts() {
   return (
     <div className="container">
       <h1 className="title">All Texts</h1>
-      {loading && <div>Loading…</div>}
+      {loading && <TextListSkeleton />}
       {error && <div style={{ color: "crimson" }}>Error: {error}</div>}
       {!loading && !error && texts.length === 0 && (
         <div>No texts found.</div>

@@ -71,8 +71,8 @@ describe('Text', () => {
 
     renderWithRouter();
 
-    // Component shows "Loading…" while loading
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    // Component shows skeleton while loading
+    expect(document.querySelector('.skeleton')).toBeInTheDocument();
   });
 
   it('fetches and displays text data', async () => {
@@ -166,7 +166,7 @@ describe('Text', () => {
 
     renderWithRouter();
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(document.querySelector('.skeleton')).toBeInTheDocument();
   });
 
   it('handles missing text ID', () => {

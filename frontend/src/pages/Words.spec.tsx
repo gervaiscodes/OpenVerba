@@ -27,7 +27,7 @@ describe('Words', () => {
 
     render(<Words />);
 
-    expect(screen.getByText('Loading words...')).toBeInTheDocument();
+    expect(document.querySelector('.skeleton')).toBeInTheDocument();
   });
 
   it('shows error state when fetch fails', async () => {

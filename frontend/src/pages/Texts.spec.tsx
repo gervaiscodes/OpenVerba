@@ -27,7 +27,7 @@ describe('Texts', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(document.querySelector('.skeleton')).toBeInTheDocument();
   });
 
   it('displays texts when loaded successfully', async () => {
