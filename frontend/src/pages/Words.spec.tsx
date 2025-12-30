@@ -142,4 +142,64 @@ describe('Words', () => {
       expect(screen.getByText('1 appearance')).toBeInTheDocument();
     });
   });
+
+  it('shows pagination controls when more than 20 words', async () => {
+    const mockWords = Array.from({ length: 25 }, (_, i) => ({
+      id: i + 1,
+      source_word: `word${i + 1}`,
+      target_word: `palabra${i + 1}`,
+      source_language: 'en',
+      occurrence_count: i + 1,
+      writing_count: 0,
+      speaking_count: 0,
+    }));
+
+    const mockData = { en: mockWords };
+
+    globalThis.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockData),
+      })
+    ) as any;
+
+    render(<Words />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Page 1 of 2')).toBeInTheDocument();
+      expect(screen.getByText('Previous')).toBeInTheDocument();
+      expect(screen.getByText('Next')).toBeInTheDocument();
+      expect(screen.getByText('word1')).toBeInTheDocument();
+      expect(screen.queryByText('word25')).not.toBeInTheDocument();
+    });
+  });
+
+  it('hides pagination controls when 20 or fewer words', async () => {
+    const mockWords = Array.from({ length: 15 }, (_, i) => ({
+      id: i + 1,
+      source_word: `word${i + 1}`,
+      target_word: `palabra${i + 1}`,
+      source_language: 'en',
+      occurrence_count: i + 1,
+      writing_count: 0,
+      speaking_count: 0,
+    }));
+
+    const mockData = { en: mockWords };
+
+    globalThis.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockData),
+      })
+    ) as any;
+
+    render(<Words />);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Page \d+ of \d+/)).not.toBeInTheDocument();
+      expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+      expect(screen.queryByText('Next')).not.toBeInTheDocument();
+    });
+  });
 });

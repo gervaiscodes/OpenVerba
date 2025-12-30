@@ -146,10 +146,13 @@ function WordItem({ word }: { word: Word }) {
   );
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export default function Words() {
   const [groupedWords, setGroupedWords] = useState<GroupedWords>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/words`)
@@ -184,6 +187,36 @@ export default function Words() {
     );
   }
 
+  // Flatten all words for pagination
+  const allWords = Object.entries(groupedWords).flatMap(([language, words]) =>
+    words.map((word) => ({ ...word, language }))
+  );
+
+  const totalPages = Math.ceil(allWords.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedWords = allWords.slice(startIndex, endIndex);
+
+  // Re-group paginated words by language
+  const paginatedGroupedWords = paginatedWords.reduce((acc, word) => {
+    const lang = word.language;
+    if (!acc[lang]) {
+      acc[lang] = [];
+    }
+    acc[lang].push(word);
+    return acc;
+  }, {} as Record<string, typeof paginatedWords>);
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="container">
       <h1 className="title">
@@ -198,44 +231,119 @@ export default function Words() {
           <p>No words found yet.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-          {Object.entries(groupedWords).map(([language, words]) => (
-            <div
-              key={language}
-              style={{
-                background: "#0a0a0a",
-                borderRadius: "12px",
-                border: "1px solid #27272a",
-                overflow: "hidden",
-              }}
-            >
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+            {Object.entries(paginatedGroupedWords).map(([language, words]) => (
               <div
+                key={language}
                 style={{
-                  background: "#18181b",
-                  padding: "1rem 1.5rem",
-                  borderBottom: "1px solid #27272a",
+                  background: "#0a0a0a",
+                  borderRadius: "12px",
+                  border: "1px solid #27272a",
+                  overflow: "hidden",
                 }}
               >
-                <h2
+                <div
                   style={{
-                    margin: 0,
-                    fontSize: "1.25rem",
-                    fontWeight: 600,
-                    color: "#fff",
-                    textTransform: "capitalize",
+                    background: "#18181b",
+                    padding: "1rem 1.5rem",
+                    borderBottom: "1px solid #27272a",
                   }}
                 >
-                  {getLanguageName(language)}
-                </h2>
+                  <h2
+                    style={{
+                      margin: 0,
+                      fontSize: "1.25rem",
+                      fontWeight: 600,
+                      color: "#fff",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    {getLanguageName(language)}
+                  </h2>
+                </div>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  {words.map((word) => (
+                    <WordItem key={word.id} word={word} />
+                  ))}
+                </ul>
               </div>
-              <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                {words.map((word) => (
-                  <WordItem key={word.id} word={word} />
-                ))}
-              </ul>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "1rem",
+                marginTop: "2rem",
+                padding: "1rem",
+              }}
+            >
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                style={{
+                  padding: "0.5rem 1rem",
+                  background: currentPage === 1 ? "#27272a" : "#3b82f6",
+                  color: currentPage === 1 ? "#71717a" : "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  fontSize: "0.9rem",
+                  fontWeight: 500,
+                  transition: "background-color 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== 1) {
+                    e.currentTarget.style.backgroundColor = "#2563eb";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== 1) {
+                    e.currentTarget.style.backgroundColor = "#3b82f6";
+                  }
+                }}
+              >
+                Previous
+              </button>
+
+              <span style={{ color: "#a1a1aa", fontSize: "0.9rem" }}>
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: "0.5rem 1rem",
+                  background: currentPage === totalPages ? "#27272a" : "#3b82f6",
+                  color: currentPage === totalPages ? "#71717a" : "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  fontSize: "0.9rem",
+                  fontWeight: 500,
+                  transition: "background-color 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== totalPages) {
+                    e.currentTarget.style.backgroundColor = "#2563eb";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== totalPages) {
+                    e.currentTarget.style.backgroundColor = "#3b82f6";
+                  }
+                }}
+              >
+                Next
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
