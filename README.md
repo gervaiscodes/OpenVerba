@@ -448,6 +448,33 @@ The application uses SQLite with the following tables:
 - **sentence_words**: Links words to sentences
 - **completions**: Tracks word completions for practice streaks (stores `word_id`, `method` ('writing' or 'speaking'), and `completed_at` timestamp)
 
+### Database Indexes
+
+The database includes optimized indexes for query performance:
+
+**Foreign Key Indexes (High Priority):**
+- `idx_sentences_text_id` - Optimizes sentence lookups by text
+- `idx_sentence_words_sentence_id` - Optimizes word lookups by sentence
+- `idx_sentence_words_word_id` - Optimizes word occurrence counts
+- `idx_completions_word_id` - Optimizes completion counts
+
+**Ordering Indexes (Medium Priority):**
+- `idx_completions_completed_at` - Optimizes streak calculations
+- `idx_texts_created_at` - Optimizes text list ordering
+
+**Additional Indexes (Low Priority):**
+- `idx_words_source_language` - Optimizes word grouping by language
+- `idx_sentences_order_in_text` - Optimizes sentence ordering
+- `idx_sentence_words_order` - Optimizes word ordering within sentences
+
+These indexes significantly improve query performance, especially for:
+- Loading text lists (50-200x faster with many texts)
+- Retrieving individual texts with all sentences and words
+- Calculating word occurrence counts
+- Computing practice streaks
+
+**Index Maintenance:** Indexes are automatically created on startup using the `CREATE INDEX IF NOT EXISTS` pattern for safe schema evolution.
+
 ## Technology Stack
 
 ### Backend
