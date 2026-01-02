@@ -18,10 +18,16 @@ describe('CompletionGraph', () => {
   });
 
   it('displays total completions correctly', () => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const twoDaysAgo = new Date(today);
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
     const stats = [
-      { date: '2025-11-30', count: 5 },
-      { date: '2025-11-29', count: 3 },
-      { date: '2025-11-28', count: 2 },
+      { date: today.toISOString().split('T')[0], count: 5 },
+      { date: yesterday.toISOString().split('T')[0], count: 3 },
+      { date: twoDaysAgo.toISOString().split('T')[0], count: 2 },
     ];
 
     render(<CompletionGraph stats={stats} />);
@@ -30,10 +36,16 @@ describe('CompletionGraph', () => {
   });
 
   it('displays max per day correctly', () => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const twoDaysAgo = new Date(today);
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
     const stats = [
-      { date: '2025-11-30', count: 10 },
-      { date: '2025-11-29', count: 5 },
-      { date: '2025-11-28', count: 3 },
+      { date: today.toISOString().split('T')[0], count: 10 },
+      { date: yesterday.toISOString().split('T')[0], count: 5 },
+      { date: twoDaysAgo.toISOString().split('T')[0], count: 3 },
     ];
 
     render(<CompletionGraph stats={stats} />);
