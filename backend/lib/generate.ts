@@ -2,7 +2,7 @@ import OpenAI from "openai";
 
 const PROMPT = `You are a language teacher creating reading material for a student.
 
-Your task is to generate a short text (about 3-5 sentences) in {SOURCE_LANG}.
+Your task is to generate a short text (about {NUM_SENTENCES} sentences) in {SOURCE_LANG}.
 
 The student knows the following words:
 {KNOWN_WORDS}
@@ -27,7 +27,8 @@ const client = new OpenAI({ apiKey: API_KEY });
 export default async function generate(
   knownWords: string[],
   newWordsPercentage: number,
-  sourceLanguage: string
+  sourceLanguage: string,
+  numberOfSentences: number = 4
 ) {
   // If known words list is too long, we might hit token limits.
   // For now, let's take a random sample if it's huge, or just the most frequent ones if we had that info.
@@ -40,7 +41,8 @@ export default async function generate(
     .replaceAll(
       "{REMAINING_PERCENTAGE}",
       (100 - newWordsPercentage).toString()
-    );
+    )
+    .replaceAll("{NUM_SENTENCES}", numberOfSentences.toString());
 
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",

@@ -121,7 +121,8 @@ export class TextService {
 
   static async generateText(
     sourceLanguage: string,
-    newWordsPercentage: number
+    newWordsPercentage: number,
+    numberOfSentences: number = 4
   ) {
     const wordsStmt = db.prepare(`
       SELECT source_word FROM words
@@ -132,7 +133,7 @@ export class TextService {
     }>;
     const knownWords = words.map((w) => w.source_word);
 
-    return await generate(knownWords, newWordsPercentage, sourceLanguage);
+    return await generate(knownWords, newWordsPercentage, sourceLanguage, numberOfSentences);
   }
 
   static getAllTexts() {

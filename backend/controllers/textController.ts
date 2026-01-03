@@ -41,6 +41,7 @@ export class TextController {
     type Body = {
       source_language: string;
       new_words_percentage: number;
+      number_of_sentences?: number;
     };
     const body = request.body as Partial<Body> | undefined;
 
@@ -57,7 +58,8 @@ export class TextController {
     try {
       const generatedText = await TextService.generateText(
         body.source_language,
-        body.new_words_percentage
+        body.new_words_percentage,
+        body.number_of_sentences
       );
       return { text: generatedText };
     } catch (err) {

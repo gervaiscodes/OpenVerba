@@ -11,6 +11,7 @@ export default function Submit() {
   const [targetLang, setTargetLang] = useState("fr");
   const [text, setText] = useState("");
   const [newWordsPercentage, setNewWordsPercentage] = useState(10);
+  const [numberOfSentences, setNumberOfSentences] = useState(4);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -25,6 +26,7 @@ export default function Submit() {
         body: JSON.stringify({
           source_language: sourceLang,
           new_words_percentage: newWordsPercentage,
+          number_of_sentences: numberOfSentences,
         }),
       });
 
@@ -131,6 +133,23 @@ export default function Submit() {
             {mode === "generate" && (
               <div style={{ marginBottom: "1rem", padding: "1rem", background: "#18181b", borderRadius: "8px", border: "1px solid #27272a" }}>
                 <label className="form-label" style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>Number of sentences</span>
+                  <span className="badge">{numberOfSentences}</span>
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  step="1"
+                  value={numberOfSentences}
+                  onChange={(e) => setNumberOfSentences(Number(e.target.value))}
+                  style={{ width: "100%", margin: "1rem 0" }}
+                />
+                <p style={{ fontSize: "0.875rem", color: "#a1a1aa", marginBottom: "1rem" }}>
+                  The generated text will contain approximately {numberOfSentences} sentence{numberOfSentences !== 1 ? 's' : ''}.
+                </p>
+
+                <label className="form-label" style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem" }}>
                   <span>New words percentage</span>
                   <span className="badge">{newWordsPercentage}%</span>
                 </label>
