@@ -86,15 +86,36 @@ export class TextService {
       }
     }
 
-    // Trigger audio generation in background
-    generateAudioForText(db, textId, sourceLanguage).catch((err) =>
-      console.error("Background audio generation failed:", err)
+    // Update status to 'processing'
+    db.prepare("UPDATE texts SET audio_status = ? WHERE id = ?").run(
+      "processing",
+      textId
     );
+
+    // Trigger audio generation in background (truly async)
+    setImmediate(async () => {
+      try {
+        await generateAudioForText(db, textId, sourceLanguage);
+        // Update status to 'completed'
+        db.prepare("UPDATE texts SET audio_status = ? WHERE id = ?").run(
+          "completed",
+          textId
+        );
+      } catch (err) {
+        console.error("Background audio generation failed:", err);
+        // Update status to 'failed'
+        db.prepare("UPDATE texts SET audio_status = ? WHERE id = ?").run(
+          "failed",
+          textId
+        );
+      }
+    });
 
     return {
       id: textId,
       translation,
       usage,
+      audio_status: "processing",
     };
   }
 
@@ -304,5 +325,13 @@ export class TextService {
 
     deleteTransaction();
     return true;
+  }
+
+  static getAudioStatus(id: string): string | null {
+    const result = db
+      .prepare("SELECT audio_status FROM texts WHERE id = ?")
+      .get(id) as { audio_status: string } | undefined;
+
+    return result?.audio_status || null;
   }
 }

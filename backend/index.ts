@@ -29,6 +29,7 @@ fastify.get("/", async (_request, _reply) => {
 fastify.post("/api/texts", TextController.create);
 fastify.get("/api/texts", TextController.getAll);
 fastify.get("/api/texts/:id", TextController.getOne);
+fastify.get("/api/texts/:id/audio-status", TextController.checkAudioStatus);
 fastify.delete("/api/texts/:id", TextController.delete);
 
 // Generate route

@@ -115,4 +115,21 @@ export class TextController {
       });
     }
   }
+
+  static async checkAudioStatus(request: FastifyRequest, reply: FastifyReply) {
+    const id = (request.params as { id: string }).id;
+    try {
+      const status = TextService.getAudioStatus(id);
+      if (!status) {
+        return reply.code(404).send({ error: "Text not found" });
+      }
+      return { audio_status: status };
+    } catch (err) {
+      request.log.error(err);
+      return reply.code(500).send({
+        error: "Failed to check audio status",
+        details: (err as Error).message,
+      });
+    }
+  }
 }

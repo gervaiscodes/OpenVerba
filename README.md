@@ -7,7 +7,7 @@
 - 📝 **Text Translation**: Translate texts between multiple languages
 - 🔤 **Word-by-Word Breakdown**: See individual word translations and their meanings
 - 🤖 **AI Text Generation**: Generate new texts based on your known vocabulary
-- 🔊 **Audio Pronunciation**: Listen to sentences and words with natural-sounding voices
+- 🔊 **Audio Pronunciation**: Listen to sentences and words with natural-sounding voices (generated asynchronously in the background)
 - 📊 **Word Tracking**: Track word frequency and usage across all your texts, with separate counts for writing and speaking practice
 - ✏️ **Cloze Completion Practice**: Practice vocabulary with interactive cloze exercises where you complete words by typing missing letters
 - 🎤 **Pronunciation Practice**: Practice speaking with real-time speech recognition and accuracy scoring
@@ -349,11 +349,40 @@ Create a new translation
 }
 ```
 
+**Response:**
+```json
+{
+  "id": 1,
+  "translation": { ... },
+  "usage": { ... },
+  "audio_status": "processing",
+  "message": "Text saved successfully"
+}
+```
+
+**Note:** Audio generation happens asynchronously in the background. The `audio_status` field indicates the current status:
+- `pending`: Waiting to start
+- `processing`: Currently generating audio files
+- `completed`: All audio files ready
+- `failed`: Audio generation encountered an error
+
 ### GET `/api/texts`
 Get all translations
 
 ### GET `/api/texts/:id`
 Get a specific translation by ID
+
+### GET `/api/texts/:id/audio-status`
+Check the audio generation status for a specific text
+
+**Response:**
+```json
+{
+  "audio_status": "completed"
+}
+```
+
+Use this endpoint to poll for completion status after creating a new text.
 
 ### DELETE `/api/texts/:id`
 Delete a translation
@@ -442,7 +471,7 @@ Get completion statistics grouped by date
 
 The application uses SQLite with the following tables:
 
-- **texts**: Stores original texts and metadata
+- **texts**: Stores original texts and metadata (includes `audio_status` field to track async audio generation: 'pending', 'processing', 'completed', or 'failed')
 - **sentences**: Stores translated sentences
 - **words**: Stores unique word translations
 - **sentence_words**: Links words to sentences

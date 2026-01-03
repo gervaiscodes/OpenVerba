@@ -19,6 +19,7 @@ export const SCHEMA = `
     prompt_tokens INTEGER,
     completion_tokens INTEGER,
     total_tokens INTEGER,
+    audio_status TEXT DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -88,5 +89,19 @@ export const SCHEMA = `
 
 // Create database schema
 db.exec(SCHEMA);
+
+// Migration: Add audio_status column to existing texts table if it doesn't exist
+try {
+  const tableInfo = db.prepare("PRAGMA table_info(texts)").all() as Array<{ name: string }>;
+  const hasAudioStatus = tableInfo.some((col) => col.name === "audio_status");
+
+  if (!hasAudioStatus) {
+    db.exec("ALTER TABLE texts ADD COLUMN audio_status TEXT DEFAULT 'pending'");
+    console.log("Migration: Added audio_status column to texts table");
+  }
+} catch (error) {
+  // Column might already exist or table doesn't exist yet
+  // Safe to ignore as schema creation handles new databases
+}
 
 export default db;

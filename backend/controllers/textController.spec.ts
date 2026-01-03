@@ -279,4 +279,46 @@ describe("TextController", () => {
       expect(reply.code).toHaveBeenCalledWith(400);
     });
   });
+
+  describe("checkAudioStatus", () => {
+    it("should return audio status for existing text", async () => {
+      const id = db
+        .prepare(
+          `
+        INSERT INTO texts (text, source_language, target_language, audio_status)
+        VALUES ('Hello', 'en', 'fr', 'completed')
+      `
+        )
+        .run().lastInsertRowid;
+
+      const request = {
+        params: { id: String(id) },
+        log: { error: vi.fn() },
+      } as any;
+      const reply = {
+        code: vi.fn().mockReturnThis(),
+        send: vi.fn(),
+      } as any;
+
+      const result = await TextController.checkAudioStatus(request, reply);
+
+      expect(result).toEqual({ audio_status: "completed" });
+    });
+
+    it("should return 404 if text not found", async () => {
+      const request = {
+        params: { id: "999" },
+        log: { error: vi.fn() },
+      } as any;
+      const reply = {
+        code: vi.fn().mockReturnThis(),
+        send: vi.fn(),
+      } as any;
+
+      await TextController.checkAudioStatus(request, reply);
+
+      expect(reply.code).toHaveBeenCalledWith(404);
+      expect(reply.send).toHaveBeenCalledWith({ error: "Text not found" });
+    });
+  });
 });

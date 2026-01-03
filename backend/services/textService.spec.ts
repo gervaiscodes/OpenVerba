@@ -106,15 +106,25 @@ describe("TextService", () => {
       expect(words[0].source_word).toBe("hello"); // Lowercase check
       expect(words[0].target_word).toBe("bonjour");
 
+      // Verify audio status is set to processing
+      expect(text.audio_status).toBe("processing");
+
+      // Wait for setImmediate to execute
+      await new Promise((resolve) => setImmediate(resolve));
+
+      // Verify generateAudioForText was called asynchronously
       expect(generateAudioForText).toHaveBeenCalledWith(
         expect.anything(),
         result.id,
         "en"
       );
+
+      // Verify result includes audio_status
       expect(result).toEqual({
         id: expect.any(Number),
         translation: mockTranslation.choice,
         usage: mockTranslation.usage,
+        audio_status: "processing",
       });
     });
   });
@@ -301,6 +311,41 @@ describe("TextService", () => {
     it("should return false if text does not exist", () => {
       const result = TextService.deleteText("999");
       expect(result).toBe(false);
+    });
+  });
+
+  describe("getAudioStatus", () => {
+    it("should return audio status for existing text", () => {
+      const textId = db
+        .prepare(
+          `
+        INSERT INTO texts (text, source_language, target_language, audio_status)
+        VALUES ('Hello', 'en', 'fr', 'completed')
+      `
+        )
+        .run().lastInsertRowid;
+
+      const status = TextService.getAudioStatus(String(textId));
+      expect(status).toBe("completed");
+    });
+
+    it("should return default pending status for newly created text", () => {
+      const textId = db
+        .prepare(
+          `
+        INSERT INTO texts (text, source_language, target_language)
+        VALUES ('Hello', 'en', 'fr')
+      `
+        )
+        .run().lastInsertRowid;
+
+      const status = TextService.getAudioStatus(String(textId));
+      expect(status).toBe("pending");
+    });
+
+    it("should return null if text does not exist", () => {
+      const status = TextService.getAudioStatus("999");
+      expect(status).toBeNull();
     });
   });
 });
