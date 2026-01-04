@@ -97,8 +97,11 @@ export function SentenceAlignment({
               }`}
             >
               <div className="src">{it.target}</div>
-              <div className={`tgt${idx === 0 ? " first-word" : ""}${it.occurrence_count === 1 ? " new-word" : ""}`}>
+              <div className={`tgt${idx === 0 ? " first-word" : ""}`}>
                 {it.source}
+                {it.occurrence_count === 1 && (
+                  <span className="new-word-badge">new</span>
+                )}
               </div>
             </div>
           ))}
