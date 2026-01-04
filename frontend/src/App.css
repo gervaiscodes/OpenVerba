@@ -150,7 +150,6 @@ body {
   max-width: 100%;
   word-break: normal;
   padding: 0 0.5rem;
-  word-spacing: 0.15em;
 }
 
 /* Target Sentence (Light) */
@@ -166,7 +165,6 @@ body {
 
 .text-source .srcw {
   cursor: pointer;
-  padding: 0.1rem 0.2rem;
   border-radius: 4px;
   transition: all 0.15s ease;
 }
