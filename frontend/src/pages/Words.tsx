@@ -4,6 +4,7 @@ import { useAudioSettings } from "../context/AudioSettingsContext";
 import { API_BASE_URL } from "../config/api";
 import { getLanguageName } from "../utils/languages";
 import { PlayIcon } from "../components/icons/PlayIcon";
+import { PauseIcon } from "../components/icons/PauseIcon";
 import { WordsSkeleton } from "../components/skeletons/WordsSkeleton";
 
 type Word = {
@@ -43,6 +44,13 @@ function WordItem({ word }: { word: Word }) {
     });
   }
 
+  function pauseAudio() {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  }
+
   return (
     <li
       style={{
@@ -64,7 +72,11 @@ function WordItem({ word }: { word: Word }) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                playAudio();
+                if (isPlaying) {
+                  pauseAudio();
+                } else {
+                  playAudio();
+                }
               }}
               className={`play-button${isPlaying ? " playing" : ""}`}
               style={{
@@ -75,9 +87,9 @@ function WordItem({ word }: { word: Word }) {
                 width: "2rem",
                 height: "2rem",
               }}
-              title="Play audio"
+              title={isPlaying ? "Pause audio" : "Play audio"}
             >
-              <PlayIcon size={12} />
+              {isPlaying ? <PauseIcon size={12} /> : <PlayIcon size={12} />}
             </button>
           )}
         </div>

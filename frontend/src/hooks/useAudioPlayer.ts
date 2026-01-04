@@ -46,5 +46,12 @@ export function useAudioPlayer(onPlayEnd?: () => void) {
     }
   };
 
-  return { isPlaying, play, stop, audioRef };
+  const pause = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  return { isPlaying, play, stop, pause, audioRef };
 }

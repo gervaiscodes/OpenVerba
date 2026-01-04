@@ -6,6 +6,7 @@ import type { AlignmentSentence } from "../types/alignment";
 import { ClozeWord } from "./ClozeWord";
 import { PronunciationPractice } from "./PronunciationPractice";
 import { PlayIcon } from "./icons/PlayIcon";
+import { PauseIcon } from "./icons/PauseIcon";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { sortByOrder, needsSpaceBefore } from "../utils/text";
 
@@ -115,13 +116,17 @@ export function SentenceAlignment({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              playSentenceAudio();
+              if (sentenceAudio.isPlaying) {
+                sentenceAudio.pause();
+              } else {
+                playSentenceAudio();
+              }
             }}
             className={`play-button${sentenceAudio.isPlaying ? " playing" : ""}`}
-            title="Play audio"
+            title={sentenceAudio.isPlaying ? "Pause audio" : "Play audio"}
             style={config.audioBtnStyle}
           >
-            <PlayIcon />
+            {sentenceAudio.isPlaying ? <PauseIcon /> : <PlayIcon />}
           </button>
         )}
 
