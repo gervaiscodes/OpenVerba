@@ -89,7 +89,10 @@ describe('Text', () => {
     });
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/texts/1')
+      expect.stringContaining('/api/texts/1'),
+      expect.objectContaining({
+        credentials: 'include'
+      })
     );
   });
 
@@ -141,11 +144,11 @@ describe('Text', () => {
     renderWithRouter();
 
     await waitFor(() => {
-      expect(screen.getByText(/Read English/)).toBeInTheDocument();
+      expect(screen.getAllByText(/English/)).toHaveLength(2); // Breadcrumb and step button
     });
 
     // Should have step buttons with language names
-    expect(screen.getByText(/Read Polish/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Polish/)).toHaveLength(2); // Breadcrumb and step button
   });
 
   it('handles non-ok response from API', async () => {

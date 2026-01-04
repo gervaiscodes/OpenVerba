@@ -3,13 +3,14 @@ import db from "../lib/db.js";
 export class CompletionService {
   static createCompletion(
     wordId: number,
-    method: "writing" | "speaking" = "writing"
+    method: "writing" | "speaking" = "writing",
+    userId: number
   ): void {
-    // Verify word exists
-    const word = db.prepare("SELECT id FROM words WHERE id = ?").get(wordId);
+    // Verify word exists and belongs to user
+    const word = db.prepare("SELECT id FROM words WHERE id = ? AND user_id = ?").get(wordId, userId);
 
     if (!word) {
-      throw new Error(`Word with id ${wordId} not found`);
+      throw new Error(`Word with id ${wordId} not found or access denied`);
     }
 
     // Insert completion record
@@ -19,7 +20,7 @@ export class CompletionService {
     );
   }
 
-  static getStreak(): number {
+  static getStreak(userId: number): number {
     // Get today's date using SQLite's date function to ensure consistency
     const todayResult = db
       .prepare(`SELECT date('now', 'localtime') as today`)
@@ -29,11 +30,13 @@ export class CompletionService {
     // Get all distinct completion dates ordered by date desc
     const dates = db
       .prepare(
-        `SELECT DISTINCT date(completed_at, 'localtime') as completion_date
-         FROM completions
+        `SELECT DISTINCT date(c.completed_at, 'localtime') as completion_date
+         FROM completions c
+         JOIN words w ON c.word_id = w.id
+         WHERE w.user_id = ?
          ORDER BY completion_date DESC`
       )
-      .all() as { completion_date: string }[];
+      .all(userId) as { completion_date: string }[];
 
     if (dates.length === 0) {
       return 0;
@@ -75,7 +78,7 @@ export class CompletionService {
     return streak;
   }
 
-  static getCompletionStats(): {
+  static getCompletionStats(userId: number): {
     date: string;
     count: number;
   }[] {
@@ -83,21 +86,28 @@ export class CompletionService {
     const stats = db
       .prepare(
         `SELECT
-          date(completed_at, 'localtime') as date,
+          date(c.completed_at, 'localtime') as date,
           COUNT(*) as count
-         FROM completions
-         GROUP BY date(completed_at, 'localtime')
+         FROM completions c
+         JOIN words w ON c.word_id = w.id
+         WHERE w.user_id = ?
+         GROUP BY date(c.completed_at, 'localtime')
          ORDER BY date DESC`
       )
-      .all() as { date: string; count: number }[];
+      .all(userId) as { date: string; count: number }[];
 
     return stats;
   }
 
-  static getTotalCount(): number {
+  static getTotalCount(userId: number): number {
     const result = db
-      .prepare("SELECT COUNT(*) as count FROM completions")
-      .get() as { count: number };
+      .prepare(`
+        SELECT COUNT(*) as count
+        FROM completions c
+        JOIN words w ON c.word_id = w.id
+        WHERE w.user_id = ?
+      `)
+      .get(userId) as { count: number };
     return result.count;
   }
 }

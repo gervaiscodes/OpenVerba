@@ -12,7 +12,9 @@ export function StreakProvider({ children }: { children: ReactNode }) {
   const [streak, setStreak] = useState<number | null>(null);
 
   const fetchStreak = () => {
-    fetch(`${API_BASE_URL}/api/completions/streak`)
+    fetch(`${API_BASE_URL}/api/completions/streak`, {
+      credentials: 'include',
+    })
       .then((res) => res.json())
       .then((data) => setStreak(data.streak))
       .catch((err) => console.error("Failed to fetch streak:", err));

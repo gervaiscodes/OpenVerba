@@ -96,6 +96,7 @@ export function PronunciationPractice({ targetText, language, words, onComplete,
             // Call API
             fetch(`${API_BASE_URL}/api/completions`, {
               method: "POST",
+              credentials: 'include',
               headers: {
                 "Content-Type": "application/json",
               },

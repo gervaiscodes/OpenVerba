@@ -1,7 +1,7 @@
 import db from "../lib/db.js";
 
 export class WordService {
-  static getGroupedWords() {
+  static getGroupedWords(userId: number) {
     const wordsStmt = db.prepare(`
       SELECT
         w.id,
@@ -16,11 +16,12 @@ export class WordService {
       JOIN sentence_words sw ON w.id = sw.word_id
       JOIN sentences s ON sw.sentence_id = s.id
       LEFT JOIN completions c ON w.id = c.word_id
+      WHERE w.user_id = ?
       GROUP BY w.id
       ORDER BY w.source_language, occurrence_count DESC
     `);
 
-    const words = wordsStmt.all() as Array<{
+    const words = wordsStmt.all(userId) as Array<{
       id: number;
       source_word: string;
       target_word: string;

@@ -18,6 +18,8 @@ const { SCHEMA } =
   await vi.importActual<typeof import("../lib/db.js")>("../lib/db.js");
 
 describe("CompletionController", () => {
+  const TEST_USER_ID = 1;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -28,8 +30,13 @@ describe("CompletionController", () => {
       DROP TABLE IF EXISTS sentences;
       DROP TABLE IF EXISTS words;
       DROP TABLE IF EXISTS texts;
+      DROP TABLE IF EXISTS users;
     `);
     db.exec(SCHEMA);
+
+    // Create a test user
+    db.prepare("INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)")
+      .run(TEST_USER_ID, "test@example.com", "hashedpassword");
   });
 
   describe("create", () => {
@@ -37,13 +44,14 @@ describe("CompletionController", () => {
       // Setup: Create a word first
       const wordId = db
         .prepare(
-          `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+          `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const request = {
         body: { word_id: wordId },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -70,10 +78,10 @@ describe("CompletionController", () => {
       // Setup: Create a word first
       const wordId = db
         .prepare(
-          `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+          `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       // Spy on CompletionService.createCompletion
       const { CompletionService } = await import(
@@ -83,6 +91,7 @@ describe("CompletionController", () => {
 
       const request = {
         body: { word_id: wordId, method: "speaking" },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -95,13 +104,14 @@ describe("CompletionController", () => {
 
       await CompletionController.create(request, reply);
 
-      expect(createSpy).toHaveBeenCalledWith(wordId, "speaking");
+      expect(createSpy).toHaveBeenCalledWith(wordId, "speaking", TEST_USER_ID);
       expect(reply.status).toHaveBeenCalledWith(201);
     });
 
     it("should return 400 when word_id is missing", async () => {
       const request = {
         body: {},
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -123,6 +133,7 @@ describe("CompletionController", () => {
     it("should return 400 when word_id is not a number", async () => {
       const request = {
         body: { word_id: "not-a-number" },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -144,6 +155,7 @@ describe("CompletionController", () => {
     it("should return 404 when word does not exist", async () => {
       const request = {
         body: { word_id: 99999 },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -168,10 +180,10 @@ describe("CompletionController", () => {
       // Create a word
       const wordId = db
         .prepare(
-          `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+          `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       // Mock CompletionService to throw an error
       const { CompletionService } = await import(
@@ -184,6 +196,7 @@ describe("CompletionController", () => {
 
       const request = {
         body: { word_id: wordId },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -212,15 +225,17 @@ describe("CompletionController", () => {
       // Setup: Create a word and some completions
       const wordId = db
         .prepare(
-          `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+          `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       // Create a completion for today
       db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
 
-      const request = {} as any;
+      const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
+      } as any;
 
       const reply = {
         send: vi.fn(),
@@ -237,7 +252,9 @@ describe("CompletionController", () => {
     });
 
     it("should return 0 streak when no completions exist", async () => {
-      const request = {} as any;
+      const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
+      } as any;
 
       const reply = {
         send: vi.fn(),
@@ -259,7 +276,9 @@ describe("CompletionController", () => {
         throw new Error("Database error");
       });
 
-      const request = {} as any;
+      const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
+      } as any;
 
       const reply = {
         send: vi.fn(),
@@ -283,16 +302,17 @@ describe("CompletionController", () => {
       // Setup: Create a word and some completions
       const wordId = db
         .prepare(
-          `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+          `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       // Create some completions
       db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
       db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
 
       const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -319,6 +339,7 @@ describe("CompletionController", () => {
 
     it("should return empty stats array when no completions exist", async () => {
       const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -345,6 +366,7 @@ describe("CompletionController", () => {
       });
 
       const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -373,17 +395,19 @@ describe("CompletionController", () => {
       // Setup: Create a word and some completions
       const wordId = db
         .prepare(
-          `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+          `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       // Create some completions
       db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
       db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
       db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
 
-      const request = {} as any;
+      const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
+      } as any;
 
       const reply = {
         send: vi.fn(),
@@ -396,7 +420,9 @@ describe("CompletionController", () => {
     });
 
     it("should return 0 when no completions exist", async () => {
-      const request = {} as any;
+      const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
+      } as any;
 
       const reply = {
         send: vi.fn(),
@@ -419,6 +445,7 @@ describe("CompletionController", () => {
       });
 
       const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },

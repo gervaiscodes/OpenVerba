@@ -1,8 +1,9 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyReply } from "fastify";
 import { TextService } from "../services/textService.js";
+import { AuthRequest } from "../middleware/auth.js";
 
 export class TextController {
-  static async create(request: FastifyRequest, reply: FastifyReply) {
+  static async create(request: AuthRequest, reply: FastifyReply) {
     type Body = {
       text: string;
       source_language: string;
@@ -17,11 +18,14 @@ export class TextController {
       });
     }
 
+    const userId = request.user!.userId;
+
     try {
       const result = await TextService.createText(
         body.text,
         body.source_language,
-        body.target_language
+        body.target_language,
+        userId
       );
 
       return reply.code(201).send({
@@ -37,7 +41,7 @@ export class TextController {
     }
   }
 
-  static async generate(request: FastifyRequest, reply: FastifyReply) {
+  static async generate(request: AuthRequest, reply: FastifyReply) {
     type Body = {
       source_language: string;
       new_words_percentage: number;
@@ -55,11 +59,14 @@ export class TextController {
       });
     }
 
+    const userId = request.user!.userId;
+
     try {
       const generatedText = await TextService.generateText(
         body.source_language,
         body.new_words_percentage,
-        body.number_of_sentences
+        body.number_of_sentences,
+        userId
       );
       return { text: generatedText };
     } catch (err) {
@@ -71,9 +78,11 @@ export class TextController {
     }
   }
 
-  static async getAll(request: FastifyRequest, reply: FastifyReply) {
+  static async getAll(request: AuthRequest, reply: FastifyReply) {
+    const userId = request.user!.userId;
+
     try {
-      const texts = TextService.getAllTexts();
+      const texts = TextService.getAllTexts(userId);
       return texts;
     } catch (err) {
       request.log.error(err);
@@ -84,10 +93,12 @@ export class TextController {
     }
   }
 
-  static async getOne(request: FastifyRequest, reply: FastifyReply) {
+  static async getOne(request: AuthRequest, reply: FastifyReply) {
     const id = (request.params as { id: string }).id;
+    const userId = request.user!.userId;
+
     try {
-      const text = TextService.getTextById(id);
+      const text = TextService.getTextById(id, userId);
       if (!text) {
         return reply.code(404).send({ error: "Text not found" });
       }
@@ -101,10 +112,12 @@ export class TextController {
     }
   }
 
-  static async delete(request: FastifyRequest, reply: FastifyReply) {
+  static async delete(request: AuthRequest, reply: FastifyReply) {
     const id = (request.params as { id: string }).id;
+    const userId = request.user!.userId;
+
     try {
-      const success = TextService.deleteText(id);
+      const success = TextService.deleteText(id, userId);
       if (!success) {
         return reply.code(404).send({ error: "Text not found" });
       }
@@ -118,10 +131,12 @@ export class TextController {
     }
   }
 
-  static async checkAudioStatus(request: FastifyRequest, reply: FastifyReply) {
+  static async checkAudioStatus(request: AuthRequest, reply: FastifyReply) {
     const id = (request.params as { id: string }).id;
+    const userId = request.user!.userId;
+
     try {
-      const status = TextService.getAudioStatus(id);
+      const status = TextService.getAudioStatus(id, userId);
       if (!status) {
         return reply.code(404).send({ error: "Text not found" });
       }

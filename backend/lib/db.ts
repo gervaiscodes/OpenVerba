@@ -11,6 +11,14 @@ db.pragma("foreign_keys = ON");
 db.pragma("journal_mode = WAL");
 
 export const SCHEMA = `
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT email_format CHECK (email LIKE '%_@_%.__%')
+  );
+
   CREATE TABLE IF NOT EXISTS texts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     text TEXT NOT NULL,
@@ -20,7 +28,9 @@ export const SCHEMA = `
     completion_tokens INTEGER,
     total_tokens INTEGER,
     audio_status TEXT DEFAULT 'pending',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    user_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
   );
 
   CREATE TABLE IF NOT EXISTS words (
@@ -30,7 +40,9 @@ export const SCHEMA = `
     source_language TEXT NOT NULL,
     target_language TEXT NOT NULL,
     audio_url TEXT,
-    UNIQUE(source_word, source_language, target_language)
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    UNIQUE(source_word, source_language, target_language, user_id)
   );
 
   CREATE TABLE IF NOT EXISTS sentences (
@@ -85,6 +97,11 @@ export const SCHEMA = `
   CREATE INDEX IF NOT EXISTS idx_words_source_language ON words(source_language);
   CREATE INDEX IF NOT EXISTS idx_sentences_order_in_text ON sentences(text_id, order_in_text);
   CREATE INDEX IF NOT EXISTS idx_sentence_words_order ON sentence_words(sentence_id, order_in_sentence);
+
+  -- USER ISOLATION: Indexes for user-based filtering
+  CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+  CREATE INDEX IF NOT EXISTS idx_texts_user_id ON texts(user_id);
+  CREATE INDEX IF NOT EXISTS idx_words_user_id ON words(user_id);
 `;
 
 // Create database schema

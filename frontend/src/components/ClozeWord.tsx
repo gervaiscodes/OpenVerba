@@ -31,6 +31,7 @@ export function ClozeWord({ word, wordId }: { word: string; wordId?: number }) {
         hasSubmitted.current = true;
         fetch(`${API_BASE_URL}/api/completions`, {
           method: "POST",
+          credentials: 'include',
           headers: {
             "Content-Type": "application/json",
           },

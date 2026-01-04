@@ -46,18 +46,26 @@ vi.mock("../lib/generate.js", () => ({
 }));
 
 describe("TextService", () => {
+  const TEST_USER_ID = 1;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Initialize/Reset schema in the in-memory DB
     // We drop tables to ensure a clean state for each test
     db.exec(`
+      DROP TABLE IF EXISTS completions;
       DROP TABLE IF EXISTS sentence_words;
       DROP TABLE IF EXISTS sentences;
       DROP TABLE IF EXISTS words;
       DROP TABLE IF EXISTS texts;
+      DROP TABLE IF EXISTS users;
     `);
     db.exec(SCHEMA);
+
+    // Create a test user
+    db.prepare("INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)")
+      .run(TEST_USER_ID, "test@example.com", "hashedpassword");
   });
 
   describe("createText", () => {
@@ -81,7 +89,7 @@ describe("TextService", () => {
       };
       (translate as any).mockResolvedValue(mockTranslation);
 
-      const result = await TextService.createText("Hello", "en", "fr");
+      const result = await TextService.createText("Hello", "en", "fr", TEST_USER_ID);
 
       expect(translate).toHaveBeenCalledWith("Hello", "en", "fr");
 
@@ -134,16 +142,16 @@ describe("TextService", () => {
       // Insert some known words
       db.prepare(
         `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('hello', 'bonjour', 'en', 'fr'), ('world', 'monde', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('hello', 'bonjour', 'en', 'fr', ?), ('world', 'monde', 'en', 'fr', ?)
       `
-      ).run();
+      ).run(TEST_USER_ID, TEST_USER_ID);
 
       (generate as any).mockResolvedValue("Generated text");
 
-      const result = await TextService.generateText("en", 50);
+      const result = await TextService.generateText("en", 50, 3, TEST_USER_ID);
 
-      expect(generate).toHaveBeenCalledWith(["hello", "world"], 50, "en");
+      expect(generate).toHaveBeenCalledWith(["hello", "world"], 50, "en", 3);
       expect(result).toBe("Generated text");
     });
   });
@@ -154,11 +162,11 @@ describe("TextService", () => {
       const textId = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language)
-        VALUES ('Hello', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id)
+        VALUES ('Hello', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const sentenceId = db
         .prepare(
@@ -172,11 +180,11 @@ describe("TextService", () => {
       const wordId = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('hello', 'bonjour', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('hello', 'bonjour', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       db.prepare(
         `
@@ -185,7 +193,7 @@ describe("TextService", () => {
       `
       ).run(sentenceId, wordId);
 
-      const result = TextService.getAllTexts();
+      const result = TextService.getAllTexts(TEST_USER_ID);
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(textId);
@@ -202,11 +210,11 @@ describe("TextService", () => {
       const textId = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language, prompt_tokens, completion_tokens, total_tokens)
-        VALUES ('Hello', 'en', 'fr', 10, 5, 15)
+        INSERT INTO texts (text, source_language, target_language, prompt_tokens, completion_tokens, total_tokens, user_id)
+        VALUES ('Hello', 'en', 'fr', 10, 5, 15, ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const sentenceId = db
         .prepare(
@@ -220,11 +228,11 @@ describe("TextService", () => {
       const wordId = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language, audio_url)
-        VALUES ('hello', 'bonjour', 'en', 'fr', 'word.mp3')
+        INSERT INTO words (source_word, target_word, source_language, target_language, audio_url, user_id)
+        VALUES ('hello', 'bonjour', 'en', 'fr', 'word.mp3', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       db.prepare(
         `
@@ -233,7 +241,7 @@ describe("TextService", () => {
       `
       ).run(sentenceId, wordId);
 
-      const result = TextService.getTextById(String(textId));
+      const result = TextService.getTextById(String(textId), TEST_USER_ID);
 
       expect(result).not.toBeNull();
       expect(result?.id).toBe(textId);
@@ -243,7 +251,7 @@ describe("TextService", () => {
     });
 
     it("should return null if text not found", () => {
-      const result = TextService.getTextById("999");
+      const result = TextService.getTextById("999", TEST_USER_ID);
       expect(result).toBeNull();
     });
   });
@@ -254,11 +262,11 @@ describe("TextService", () => {
       const textId = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language)
-        VALUES ('Hello', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id)
+        VALUES ('Hello', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const sentenceId = db
         .prepare(
@@ -272,11 +280,11 @@ describe("TextService", () => {
       const wordId = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('hello', 'bonjour', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('hello', 'bonjour', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       db.prepare(
         `
@@ -285,7 +293,7 @@ describe("TextService", () => {
       `
       ).run(sentenceId, wordId);
 
-      const result = TextService.deleteText(String(textId));
+      const result = TextService.deleteText(String(textId), TEST_USER_ID);
 
       expect(result).toBe(true);
 
@@ -309,7 +317,7 @@ describe("TextService", () => {
     });
 
     it("should return false if text does not exist", () => {
-      const result = TextService.deleteText("999");
+      const result = TextService.deleteText("999", TEST_USER_ID);
       expect(result).toBe(false);
     });
   });
@@ -319,13 +327,13 @@ describe("TextService", () => {
       const textId = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language, audio_status)
-        VALUES ('Hello', 'en', 'fr', 'completed')
+        INSERT INTO texts (text, source_language, target_language, audio_status, user_id)
+        VALUES ('Hello', 'en', 'fr', 'completed', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
-      const status = TextService.getAudioStatus(String(textId));
+      const status = TextService.getAudioStatus(String(textId), TEST_USER_ID);
       expect(status).toBe("completed");
     });
 
@@ -333,18 +341,18 @@ describe("TextService", () => {
       const textId = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language)
-        VALUES ('Hello', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id)
+        VALUES ('Hello', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
-      const status = TextService.getAudioStatus(String(textId));
+      const status = TextService.getAudioStatus(String(textId), TEST_USER_ID);
       expect(status).toBe("pending");
     });
 
     it("should return null if text does not exist", () => {
-      const status = TextService.getAudioStatus("999");
+      const status = TextService.getAudioStatus("999", TEST_USER_ID);
       expect(status).toBeNull();
     });
   });

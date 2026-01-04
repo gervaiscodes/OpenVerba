@@ -13,7 +13,9 @@ export function CoinProvider({ children }: { children: ReactNode }) {
   const [total, setTotal] = useState<number | null>(null);
 
   const refresh = () => {
-    fetch(`${API_BASE_URL}/api/completions/total`)
+    fetch(`${API_BASE_URL}/api/completions/total`, {
+      credentials: 'include',
+    })
       .then((res) => res.json())
       .then((data) => setTotal(data.total))
       .catch((err) => console.error("Failed to fetch total completions:", err));

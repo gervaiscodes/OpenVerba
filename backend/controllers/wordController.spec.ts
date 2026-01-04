@@ -33,17 +33,25 @@ vi.mock("../lib/generate.js", () => ({
 import translate from "../lib/translate.js";
 
 describe("WordController", () => {
+  const TEST_USER_ID = 1;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Initialize/Reset schema in the in-memory DB
     db.exec(`
+      DROP TABLE IF EXISTS completions;
       DROP TABLE IF EXISTS sentence_words;
       DROP TABLE IF EXISTS sentences;
       DROP TABLE IF EXISTS words;
       DROP TABLE IF EXISTS texts;
+      DROP TABLE IF EXISTS users;
     `);
     db.exec(SCHEMA);
+
+    // Create a test user
+    db.prepare("INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)")
+      .run(TEST_USER_ID, "test@example.com", "hashedpassword");
   });
 
   describe("getAll", () => {
@@ -52,10 +60,10 @@ describe("WordController", () => {
       const textId = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language) VALUES ('Hello world', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id) VALUES ('Hello world', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const s1 = db
         .prepare(
@@ -68,20 +76,20 @@ describe("WordController", () => {
       const w1 = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('hello', 'bonjour', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('hello', 'bonjour', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const w2 = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('world', 'monde', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('world', 'monde', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       db.prepare(
         `INSERT INTO sentence_words (sentence_id, word_id, order_in_sentence) VALUES (?, ?, 1)`
@@ -92,6 +100,7 @@ describe("WordController", () => {
 
       // 2. Mock Request and Reply
       const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },
@@ -136,6 +145,7 @@ describe("WordController", () => {
       });
 
       const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: {
           error: vi.fn(),
         },

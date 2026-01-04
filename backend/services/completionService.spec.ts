@@ -18,6 +18,8 @@ const { SCHEMA } =
   await vi.importActual<typeof import("../lib/db.js")>("../lib/db.js");
 
 describe("CompletionService", () => {
+  const TEST_USER_ID = 1;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -28,8 +30,13 @@ describe("CompletionService", () => {
       DROP TABLE IF EXISTS sentences;
       DROP TABLE IF EXISTS words;
       DROP TABLE IF EXISTS texts;
+      DROP TABLE IF EXISTS users;
     `);
     db.exec(SCHEMA);
+
+    // Create a test user
+    db.prepare("INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)")
+      .run(TEST_USER_ID, "test@example.com", "hashedpassword");
   });
 
   describe("createCompletion", () => {
@@ -38,14 +45,14 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Create completion
-      CompletionService.createCompletion(wordId);
+      CompletionService.createCompletion(wordId, "writing", TEST_USER_ID);
 
       // Verify completion was created
       const completion = db
@@ -61,14 +68,14 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Create completion with speaking method
-      CompletionService.createCompletion(wordId, "speaking");
+      CompletionService.createCompletion(wordId, "speaking", TEST_USER_ID);
 
       // Verify completion was created with correct method
       const completion = db
@@ -80,8 +87,8 @@ describe("CompletionService", () => {
 
     it("should throw an error when word does not exist", () => {
       expect(() => {
-        CompletionService.createCompletion(99999);
-      }).toThrow("Word with id 99999 not found");
+        CompletionService.createCompletion(99999, "writing", TEST_USER_ID);
+      }).toThrow("Word with id 99999 not found or access denied");
     });
 
     it("should create multiple completions for the same word", () => {
@@ -89,16 +96,16 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Create multiple completions
-      CompletionService.createCompletion(wordId);
-      CompletionService.createCompletion(wordId);
-      CompletionService.createCompletion(wordId);
+      CompletionService.createCompletion(wordId, "writing", TEST_USER_ID);
+      CompletionService.createCompletion(wordId, "writing", TEST_USER_ID);
+      CompletionService.createCompletion(wordId, "writing", TEST_USER_ID);
 
       // Verify all completions were created
       const completions = db
@@ -110,7 +117,7 @@ describe("CompletionService", () => {
 
   describe("getStreak", () => {
     it("should return 0 when no completions exist", () => {
-      const streak = CompletionService.getStreak();
+      const streak = CompletionService.getStreak(TEST_USER_ID);
       expect(streak).toBe(0);
     });
 
@@ -119,16 +126,16 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Insert completion (will use current timestamp)
       db.prepare("INSERT INTO completions (word_id) VALUES (?)").run(wordId);
 
-      const streak = CompletionService.getStreak();
+      const streak = CompletionService.getStreak(TEST_USER_ID);
       expect(streak).toBeGreaterThanOrEqual(1);
     });
 
@@ -137,10 +144,10 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Get today's date
@@ -163,7 +170,7 @@ describe("CompletionService", () => {
         `INSERT INTO completions (word_id, completed_at) VALUES (?, ?)`
       ).run(wordId, `${yesterday} 12:00:00`);
 
-      const streak = CompletionService.getStreak();
+      const streak = CompletionService.getStreak(TEST_USER_ID);
       expect(streak).toBeGreaterThanOrEqual(2);
     });
 
@@ -172,10 +179,10 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Create completion for 3 days ago (streak is broken)
@@ -188,14 +195,14 @@ describe("CompletionService", () => {
         `INSERT INTO completions (word_id, completed_at) VALUES (?, ?)`
       ).run(wordId, `${threeDaysAgo} 12:00:00`);
 
-      const streak = CompletionService.getStreak();
+      const streak = CompletionService.getStreak(TEST_USER_ID);
       expect(streak).toBe(0);
     });
   });
 
   describe("getCompletionStats", () => {
     it("should return empty array when no completions exist", () => {
-      const stats = CompletionService.getCompletionStats();
+      const stats = CompletionService.getCompletionStats(TEST_USER_ID);
       expect(stats).toEqual([]);
     });
 
@@ -204,10 +211,10 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Get today's date
@@ -227,7 +234,7 @@ describe("CompletionService", () => {
         `INSERT INTO completions (word_id, completed_at) VALUES (?, ?)`
       ).run(wordId, `${today} 12:00:00`);
 
-      const stats = CompletionService.getCompletionStats();
+      const stats = CompletionService.getCompletionStats(TEST_USER_ID);
       expect(stats.length).toBeGreaterThan(0);
 
       const todayStat = stats.find((s) => s.date === today);
@@ -240,10 +247,10 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Get dates
@@ -268,7 +275,7 @@ describe("CompletionService", () => {
         `INSERT INTO completions (word_id, completed_at) VALUES (?, ?)`
       ).run(wordId, `${yesterday} 10:00:00`);
 
-      const stats = CompletionService.getCompletionStats();
+      const stats = CompletionService.getCompletionStats(TEST_USER_ID);
       expect(stats.length).toBeGreaterThanOrEqual(2);
 
       const todayStat = stats.find((s) => s.date === today);
@@ -283,10 +290,10 @@ describe("CompletionService", () => {
       const wordId = Number(
         db
           .prepare(
-            `INSERT INTO words (source_word, target_word, source_language, target_language)
-           VALUES ('hello', 'hola', 'en', 'es')`
+            `INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+           VALUES ('hello', 'hola', 'en', 'es', ?)`
           )
-          .run().lastInsertRowid
+          .run(TEST_USER_ID).lastInsertRowid
       );
 
       // Get dates
@@ -308,7 +315,7 @@ describe("CompletionService", () => {
         `INSERT INTO completions (word_id, completed_at) VALUES (?, ?)`
       ).run(wordId, `${today} 10:00:00`);
 
-      const stats = CompletionService.getCompletionStats();
+      const stats = CompletionService.getCompletionStats(TEST_USER_ID);
       expect(stats.length).toBeGreaterThanOrEqual(2);
 
       // First stat should be today (most recent)

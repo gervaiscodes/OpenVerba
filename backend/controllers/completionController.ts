@@ -1,5 +1,6 @@
-import type { FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyReply } from "fastify";
 import { CompletionService } from "../services/completionService.js";
+import { AuthRequest } from "../middleware/auth.js";
 
 interface CreateCompletionBody {
   word_id: number;
@@ -8,11 +9,13 @@ interface CreateCompletionBody {
 
 export class CompletionController {
   static async create(
-    request: FastifyRequest<{ Body: CreateCompletionBody }>,
+    request: AuthRequest,
     reply: FastifyReply
   ) {
+    const userId = request.user!.userId;
+
     try {
-      const { word_id, method } = request.body;
+      const { word_id, method } = request.body as CreateCompletionBody;
 
       if (!word_id || typeof word_id !== "number") {
         return reply
@@ -20,7 +23,7 @@ export class CompletionController {
           .send({ error: "word_id is required and must be a number" });
       }
 
-      CompletionService.createCompletion(word_id, method);
+      CompletionService.createCompletion(word_id, method, userId);
 
       return reply.status(201).send({ success: true });
     } catch (error) {
@@ -32,18 +35,22 @@ export class CompletionController {
     }
   }
 
-  static async getStreak(_request: FastifyRequest, reply: FastifyReply) {
+  static async getStreak(request: AuthRequest, reply: FastifyReply) {
+    const userId = request.user!.userId;
+
     try {
-      const streak = CompletionService.getStreak();
+      const streak = CompletionService.getStreak(userId);
       return reply.send({ streak });
     } catch (error) {
       return reply.status(500).send({ error: "Failed to get streak" });
     }
   }
 
-  static async getStats(request: FastifyRequest, reply: FastifyReply) {
+  static async getStats(request: AuthRequest, reply: FastifyReply) {
+    const userId = request.user!.userId;
+
     try {
-      const stats = CompletionService.getCompletionStats();
+      const stats = CompletionService.getCompletionStats(userId);
       return reply.send({ stats });
     } catch (error) {
       request.log.error(error);
@@ -53,9 +60,11 @@ export class CompletionController {
     }
   }
 
-  static async getTotal(_request: FastifyRequest, reply: FastifyReply) {
+  static async getTotal(request: AuthRequest, reply: FastifyReply) {
+    const userId = request.user!.userId;
+
     try {
-      const total = CompletionService.getTotalCount();
+      const total = CompletionService.getTotalCount(userId);
       return reply.send({ total });
     } catch (error) {
       return reply.status(500).send({ error: "Failed to get total count" });

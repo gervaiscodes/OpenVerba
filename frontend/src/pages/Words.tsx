@@ -155,7 +155,9 @@ export default function Words() {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/words`)
+    fetch(`${API_BASE_URL}/api/words`, {
+      credentials: 'include',
+    })
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch words");

@@ -22,7 +22,9 @@ export default function Texts() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${API_BASE_URL}/api/texts`)
+    fetch(`${API_BASE_URL}/api/texts`, {
+      credentials: 'include',
+    })
       .then((r) => {
         if (!r.ok) throw new Error("Failed to load texts");
         return r.json();

@@ -30,7 +30,9 @@ export default function Text() {
     let cancelled = false;
     const apiUrl = `${API_BASE_URL}/api/texts/${id}`;
 
-    fetch(apiUrl)
+    fetch(apiUrl, {
+      credentials: 'include',
+    })
       .then((r) => {
         if (!r.ok) throw new Error("Failed to load alignment");
         return r.json();
@@ -76,6 +78,7 @@ export default function Text() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/texts/${id}`, {
         method: "DELETE",
+        credentials: 'include',
       });
 
       if (!response.ok) {

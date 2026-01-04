@@ -20,6 +20,7 @@ export default function Submit() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/generate`, {
         method: "POST",
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json",
         },
@@ -51,6 +52,7 @@ export default function Submit() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/texts`, {
         method: "POST",
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json",
         },

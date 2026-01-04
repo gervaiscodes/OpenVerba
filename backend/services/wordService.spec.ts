@@ -18,17 +18,25 @@ const { SCHEMA } =
   await vi.importActual<typeof import("../lib/db.js")>("../lib/db.js");
 
 describe("WordService", () => {
+  const TEST_USER_ID = 1;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Initialize/Reset schema in the in-memory DB
     db.exec(`
+      DROP TABLE IF EXISTS completions;
       DROP TABLE IF EXISTS sentence_words;
       DROP TABLE IF EXISTS sentences;
       DROP TABLE IF EXISTS words;
       DROP TABLE IF EXISTS texts;
+      DROP TABLE IF EXISTS users;
     `);
     db.exec(SCHEMA);
+
+    // Create a test user
+    db.prepare("INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)")
+      .run(TEST_USER_ID, "test@example.com", "hashedpassword");
   });
 
   describe("getGroupedWords", () => {
@@ -39,18 +47,18 @@ describe("WordService", () => {
       const textId1 = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language) VALUES ('Text 1', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id) VALUES ('Text 1', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const textId2 = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language) VALUES ('Text 2', 'es', 'en')
+        INSERT INTO texts (text, source_language, target_language, user_id) VALUES ('Text 2', 'es', 'en', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       // Create sentences
       const s1 = db
@@ -85,38 +93,38 @@ describe("WordService", () => {
       const w1 = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('hello', 'bonjour', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('hello', 'bonjour', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const w2 = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('world', 'monde', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('world', 'monde', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const w3 = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('hola', 'hello', 'es', 'en')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('hola', 'hello', 'es', 'en', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const wPunct = db
         .prepare(
           `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('...', '...', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('...', '...', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       // Link words to sentences
       // w1 in s1 (text1)
@@ -143,7 +151,7 @@ describe("WordService", () => {
         `INSERT INTO sentence_words (sentence_id, word_id, order_in_sentence) VALUES (?, ?, 3)`
       ).run(s1, wPunct);
 
-      const result = WordService.getGroupedWords();
+      const result = WordService.getGroupedWords(TEST_USER_ID);
 
       expect(Object.keys(result)).toEqual(expect.arrayContaining(["en", "es"]));
 
@@ -159,10 +167,10 @@ describe("WordService", () => {
       const textId3 = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language) VALUES ('Text 3', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id) VALUES ('Text 3', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
       const s4 = db
         .prepare(
           `
@@ -175,7 +183,7 @@ describe("WordService", () => {
       ).run(s4, w1);
 
       // Now w1 has 2 distinct texts, w2 has 1.
-      const result2 = WordService.getGroupedWords();
+      const result2 = WordService.getGroupedWords(TEST_USER_ID);
       const enWords2 = result2["en"];
 
       expect(enWords2[0].source_word).toBe("hello");

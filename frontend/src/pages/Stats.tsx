@@ -14,7 +14,9 @@ export default function Stats() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/completions/stats`)
+    fetch(`${API_BASE_URL}/api/completions/stats`, {
+      credentials: 'include',
+    })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch stats");
         return res.json();

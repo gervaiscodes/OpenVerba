@@ -3,9 +3,13 @@ import path from "path";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
+import fastifyCookie from "@fastify/cookie";
+import rateLimit from "@fastify/rate-limit";
 import { TextController } from "./controllers/textController.js";
 import { WordController } from "./controllers/wordController.js";
 import { CompletionController } from "./controllers/completionController.js";
+import { AuthController } from "./controllers/authController.js";
+import { requireAuth } from "./middleware/auth.js";
 
 const fastify = Fastify({
   logger: true,
@@ -13,7 +17,17 @@ const fastify = Fastify({
 
 await fastify.register(cors, {
   origin: true,
+  credentials: true, // Allow cookies
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+});
+
+await fastify.register(fastifyCookie, {
+  secret: process.env.COOKIE_SECRET || "CHANGE_ME_IN_PRODUCTION",
+});
+
+await fastify.register(rateLimit, {
+  max: 100,
+  timeWindow: "15 minutes",
 });
 
 await fastify.register(fastifyStatic, {
@@ -25,24 +39,47 @@ fastify.get("/", async (_request, _reply) => {
   return { hello: "world!" };
 });
 
-// Text routes
-fastify.post("/api/texts", TextController.create);
-fastify.get("/api/texts", TextController.getAll);
-fastify.get("/api/texts/:id", TextController.getOne);
-fastify.get("/api/texts/:id/audio-status", TextController.checkAudioStatus);
-fastify.delete("/api/texts/:id", TextController.delete);
+// Auth routes (public - no authentication required)
+fastify.post("/api/auth/signup", {
+  config: {
+    rateLimit: {
+      max: 3,
+      timeWindow: "1 hour",
+    },
+  },
+}, AuthController.signup);
 
-// Generate route
-fastify.post("/api/generate", TextController.generate);
+fastify.post("/api/auth/login", {
+  config: {
+    rateLimit: {
+      max: 5,
+      timeWindow: "15 minutes",
+    },
+  },
+}, AuthController.login);
 
-// Word routes
-fastify.get("/api/words", WordController.getAll);
+fastify.post("/api/auth/logout", AuthController.logout);
 
-// Completion routes
-fastify.post("/api/completions", CompletionController.create);
-fastify.get("/api/completions/streak", CompletionController.getStreak);
-fastify.get("/api/completions/stats", CompletionController.getStats);
-fastify.get("/api/completions/total", CompletionController.getTotal);
+fastify.get("/api/auth/me", { preHandler: requireAuth }, AuthController.me);
+
+// Text routes (protected - authentication required)
+fastify.post("/api/texts", { preHandler: requireAuth }, TextController.create);
+fastify.get("/api/texts", { preHandler: requireAuth }, TextController.getAll);
+fastify.get("/api/texts/:id", { preHandler: requireAuth }, TextController.getOne);
+fastify.get("/api/texts/:id/audio-status", { preHandler: requireAuth }, TextController.checkAudioStatus);
+fastify.delete("/api/texts/:id", { preHandler: requireAuth }, TextController.delete);
+
+// Generate route (protected)
+fastify.post("/api/generate", { preHandler: requireAuth }, TextController.generate);
+
+// Word routes (protected)
+fastify.get("/api/words", { preHandler: requireAuth }, WordController.getAll);
+
+// Completion routes (protected)
+fastify.post("/api/completions", { preHandler: requireAuth }, CompletionController.create);
+fastify.get("/api/completions/streak", { preHandler: requireAuth }, CompletionController.getStreak);
+fastify.get("/api/completions/stats", { preHandler: requireAuth }, CompletionController.getStats);
+fastify.get("/api/completions/total", { preHandler: requireAuth }, CompletionController.getTotal);
 
 async function start() {
   try {

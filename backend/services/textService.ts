@@ -7,7 +7,8 @@ export class TextService {
   static async createText(
     text: string,
     sourceLanguage: string,
-    targetLanguage: string
+    targetLanguage: string,
+    userId: number
   ) {
     const { choice: translation, usage } = await translate(
       text,
@@ -17,8 +18,8 @@ export class TextService {
 
     // Insert into texts table
     const textStmt = db.prepare(`
-      INSERT INTO texts (text, source_language, target_language, prompt_tokens, completion_tokens, total_tokens)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO texts (text, source_language, target_language, prompt_tokens, completion_tokens, total_tokens, user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
     const textResult = textStmt.run(
       text,
@@ -26,7 +27,8 @@ export class TextService {
       targetLanguage,
       usage?.prompt_tokens || 0,
       usage?.completion_tokens || 0,
-      usage?.total_tokens || 0
+      usage?.total_tokens || 0,
+      userId
     );
     const textId = textResult.lastInsertRowid as number;
 
@@ -37,13 +39,13 @@ export class TextService {
     `);
 
     const wordInsertStmt = db.prepare(`
-      INSERT OR IGNORE INTO words (source_word, target_word, source_language, target_language)
-      VALUES (?, ?, ?, ?)
+      INSERT OR IGNORE INTO words (source_word, target_word, source_language, target_language, user_id)
+      VALUES (?, ?, ?, ?, ?)
     `);
 
     const wordSelectStmt = db.prepare(`
       SELECT id FROM words
-      WHERE source_word = ? AND source_language = ? AND target_language = ?
+      WHERE source_word = ? AND source_language = ? AND target_language = ? AND user_id = ?
     `);
 
     const sentenceWordStmt = db.prepare(`
@@ -69,14 +71,16 @@ export class TextService {
           item.source.toLowerCase(),
           item.target.toLowerCase(),
           sourceLanguage,
-          targetLanguage
+          targetLanguage,
+          userId
         );
 
         // Get word ID
         const wordRow = wordSelectStmt.get(
           item.source.toLowerCase(),
           sourceLanguage,
-          targetLanguage
+          targetLanguage,
+          userId
         ) as { id: number } | undefined;
 
         if (wordRow) {
@@ -122,13 +126,14 @@ export class TextService {
   static async generateText(
     sourceLanguage: string,
     newWordsPercentage: number,
-    numberOfSentences: number = 4
+    numberOfSentences: number = 4,
+    userId: number
   ) {
     const wordsStmt = db.prepare(`
       SELECT source_word FROM words
-      WHERE source_language = ?
+      WHERE source_language = ? AND user_id = ?
     `);
-    const words = wordsStmt.all(sourceLanguage) as Array<{
+    const words = wordsStmt.all(sourceLanguage, userId) as Array<{
       source_word: string;
     }>;
     const knownWords = words.map((w) => w.source_word);
@@ -136,11 +141,11 @@ export class TextService {
     return await generate(knownWords, newWordsPercentage, sourceLanguage, numberOfSentences);
   }
 
-  static getAllTexts() {
+  static getAllTexts(userId: number) {
     const textsStmt = db.prepare(
-      "SELECT * FROM texts ORDER BY created_at DESC"
+      "SELECT * FROM texts WHERE user_id = ? ORDER BY created_at DESC"
     );
-    const texts = textsStmt.all() as Array<{
+    const texts = textsStmt.all(userId) as Array<{
       id: number;
       text: string;
       source_language: string;
@@ -210,9 +215,9 @@ export class TextService {
     });
   }
 
-  static getTextById(id: string) {
-    const textStmt = db.prepare("SELECT * FROM texts WHERE id = ?");
-    const text = textStmt.get(id) as
+  static getTextById(id: string, userId: number) {
+    const textStmt = db.prepare("SELECT * FROM texts WHERE id = ? AND user_id = ?");
+    const text = textStmt.get(id, userId) as
       | {
           id: number;
           text: string;
@@ -300,8 +305,8 @@ export class TextService {
     };
   }
 
-  static deleteText(id: string) {
-    const textExists = db.prepare("SELECT id FROM texts WHERE id = ?").get(id);
+  static deleteText(id: string, userId: number) {
+    const textExists = db.prepare("SELECT id FROM texts WHERE id = ? AND user_id = ?").get(id, userId);
     if (!textExists) {
       return false;
     }
@@ -328,10 +333,10 @@ export class TextService {
     return true;
   }
 
-  static getAudioStatus(id: string): string | null {
+  static getAudioStatus(id: string, userId: number): string | null {
     const result = db
-      .prepare("SELECT audio_status FROM texts WHERE id = ?")
-      .get(id) as { audio_status: string } | undefined;
+      .prepare("SELECT audio_status FROM texts WHERE id = ? AND user_id = ?")
+      .get(id, userId) as { audio_status: string } | undefined;
 
     return result?.audio_status || null;
   }

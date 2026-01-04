@@ -34,17 +34,25 @@ import translate from "../lib/translate.js";
 import generate from "../lib/generate.js";
 
 describe("TextController", () => {
+  const TEST_USER_ID = 1;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Initialize/Reset schema in the in-memory DB
     db.exec(`
+      DROP TABLE IF EXISTS completions;
       DROP TABLE IF EXISTS sentence_words;
       DROP TABLE IF EXISTS sentences;
       DROP TABLE IF EXISTS words;
       DROP TABLE IF EXISTS texts;
+      DROP TABLE IF EXISTS users;
     `);
     db.exec(SCHEMA);
+
+    // Create a test user
+    db.prepare("INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)")
+      .run(TEST_USER_ID, "test@example.com", "hashedpassword");
   });
 
   describe("getAll", () => {
@@ -52,16 +60,17 @@ describe("TextController", () => {
       // Setup data via SQL
       db.prepare(
         `
-        INSERT INTO texts (text, source_language, target_language) VALUES ('Hello', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id) VALUES ('Hello', 'en', 'fr', ?)
       `
-      ).run();
+      ).run(TEST_USER_ID);
       db.prepare(
         `
-        INSERT INTO texts (text, source_language, target_language) VALUES ('World', 'en', 'es')
+        INSERT INTO texts (text, source_language, target_language, user_id) VALUES ('World', 'en', 'es', ?)
       `
-      ).run();
+      ).run(TEST_USER_ID);
 
       const request = {
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -87,13 +96,14 @@ describe("TextController", () => {
       const id = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language) VALUES ('Hello', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id) VALUES ('Hello', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const request = {
         params: { id: String(id) },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -111,6 +121,7 @@ describe("TextController", () => {
     it("should return 404 if text not found", async () => {
       const request = {
         params: { id: "999" },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -145,6 +156,7 @@ describe("TextController", () => {
           source_language: "en",
           target_language: "fr",
         },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -193,13 +205,14 @@ describe("TextController", () => {
       const id = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language) VALUES ('Hello', 'en', 'fr')
+        INSERT INTO texts (text, source_language, target_language, user_id) VALUES ('Hello', 'en', 'fr', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const request = {
         params: { id: String(id) },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -219,6 +232,7 @@ describe("TextController", () => {
     it("should return 404 if text not found", async () => {
       const request = {
         params: { id: "999" },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -237,10 +251,10 @@ describe("TextController", () => {
       // Setup known words via SQL
       db.prepare(
         `
-        INSERT INTO words (source_word, target_word, source_language, target_language)
-        VALUES ('hello', 'bonjour', 'en', 'fr')
+        INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
+        VALUES ('hello', 'bonjour', 'en', 'fr', ?)
       `
-      ).run();
+      ).run(TEST_USER_ID);
 
       (generate as any).mockResolvedValue("Generated text");
 
@@ -249,6 +263,7 @@ describe("TextController", () => {
           source_language: "en",
           new_words_percentage: 20,
         },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -259,7 +274,7 @@ describe("TextController", () => {
       const result = await TextController.generate(request, reply);
 
       expect(result).toEqual({ text: "Generated text" });
-      expect(generate).toHaveBeenCalledWith(["hello"], 20, "en");
+      expect(generate).toHaveBeenCalledWith(["hello"], 20, "en", 4);
     });
 
     it("should return 400 if fields are missing", async () => {
@@ -267,6 +282,7 @@ describe("TextController", () => {
         body: {
           // missing fields
         },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -285,14 +301,15 @@ describe("TextController", () => {
       const id = db
         .prepare(
           `
-        INSERT INTO texts (text, source_language, target_language, audio_status)
-        VALUES ('Hello', 'en', 'fr', 'completed')
+        INSERT INTO texts (text, source_language, target_language, audio_status, user_id)
+        VALUES ('Hello', 'en', 'fr', 'completed', ?)
       `
         )
-        .run().lastInsertRowid;
+        .run(TEST_USER_ID).lastInsertRowid;
 
       const request = {
         params: { id: String(id) },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
@@ -308,6 +325,7 @@ describe("TextController", () => {
     it("should return 404 if text not found", async () => {
       const request = {
         params: { id: "999" },
+        user: { userId: TEST_USER_ID, email: "test@example.com" },
         log: { error: vi.fn() },
       } as any;
       const reply = {
