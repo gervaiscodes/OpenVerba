@@ -153,7 +153,7 @@ export function PronunciationPractice({ targetText, language, words, onComplete,
 
   return (
     <div className="pronunciation-practice">
-      <div style={{ marginBottom: '1rem', fontSize: '1.1rem', color: '#e4e4e7' }}>
+      <div className="pronunciation-text" style={{ marginBottom: '1rem', color: '#e4e4e7' }}>
         {targetText}
       </div>
 

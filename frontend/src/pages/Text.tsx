@@ -104,36 +104,42 @@ export default function Text() {
         <button
           className={`step-btn${step === 1 ? " active" : ""}`}
           onClick={() => setStep(1)}
+          data-number="1"
         >
-          1. Read {getLanguageName(data.target_language)}
+          1. {getLanguageName(data.target_language)}
         </button>
         <button
           className={`step-btn${step === 2 ? " active" : ""}`}
           onClick={() => setStep(2)}
+          data-number="2"
         >
           2. Listen
         </button>
         <button
           className={`step-btn${step === 3 ? " active" : ""}`}
           onClick={() => setStep(3)}
+          data-number="3"
         >
           3. Dual
         </button>
         <button
           className={`step-btn${step === 4 ? " active" : ""}`}
           onClick={() => setStep(4)}
+          data-number="4"
         >
-          4. Read {getLanguageName(data.source_language)}
+          4. {getLanguageName(data.source_language)}
         </button>
         <button
           className={`step-btn${step === 5 ? " active" : ""}`}
           onClick={() => setStep(5)}
+          data-number="5"
         >
           5. Write
         </button>
         <button
           className={`step-btn${step === 6 ? " active" : ""}`}
           onClick={() => setStep(6)}
+          data-number="6"
         >
           6. Speak
         </button>

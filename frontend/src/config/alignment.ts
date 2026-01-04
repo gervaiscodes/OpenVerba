@@ -9,7 +9,7 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
     showAudioBtn: false,
     autoPlay: false,
     containerStyle: { paddingTop: 0, borderTop: "none" },
-    targetStyle: { fontStyle: "normal", fontSize: "1.2rem", color: "#e4e4e7" },
+    targetStyle: { fontStyle: "normal", color: "#e4e4e7" },
     allowWordClick: false,
   },
   2: {
@@ -26,7 +26,7 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
       borderTop: "none",
       paddingTop: 0,
     },
-    targetStyle: { fontStyle: "normal", fontSize: "1.2rem", color: "#e4e4e7" },
+    targetStyle: { fontStyle: "normal", color: "#e4e4e7" },
     allowWordClick: true,
   },
   3: {
