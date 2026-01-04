@@ -4,6 +4,7 @@
 
 ## Features
 
+- 👤 **User Accounts**: Secure signup and login with JWT authentication
 - 📝 **Text Translation**: Translate texts between multiple languages
 - 🔤 **Word-by-Word Breakdown**: See individual word translations and their meanings
 - 🤖 **AI Text Generation**: Generate new texts based on your known vocabulary
@@ -41,12 +42,13 @@ The application requires environment variables to be configured:
 
 Configure these in `backend/.env`:
 
-| Variable                | Description                                  | Example     |
-| ----------------------- | -------------------------------------------- | ----------- |
-| `OPENAI_API_KEY`        | Your OpenAI API key for translation services | `sk-...`    |
-| `AWS_REGION`            | AWS region for Polly service                 | `us-east-1` |
-| `AWS_ACCESS_KEY_ID`     | AWS access key ID for Polly                  | `AKIA...`   |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret access key for Polly              | `...`       |
+| Variable                | Description                                  | Example                    |
+| ----------------------- | -------------------------------------------- | -------------------------- |
+| `OPENAI_API_KEY`        | Your OpenAI API key for translation services | `sk-...`                   |
+| `AWS_REGION`            | AWS region for Polly service                 | `us-east-1`                |
+| `AWS_ACCESS_KEY_ID`     | AWS access key ID for Polly                  | `AKIA...`                  |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret access key for Polly              | `...`                      |
+| `COOKIE_SECRET`         | Secret key for JWT cookie encryption         | `random-secret-key-change` |
 
 ### Frontend Environment Variables
 
@@ -132,20 +134,20 @@ These files will persist even if you restart or recreate the Docker containers.
 cd backend
 
 # Install dependencies
-npm install
+yarn install
 
 # Copy environment file
 cp .env.example .env
 # Edit .env with your credentials
 
 # Run in development mode (with hot reload)
-npm run dev
+yarn dev
 
 # Build for production
-npm run build
+yarn build
 
 # Run production build
-npm start
+yarn start
 ```
 
 ### Frontend
@@ -154,20 +156,20 @@ npm start
 cd frontend
 
 # Install dependencies
-npm install
+yarn install
 
 # Copy environment file
 cp .env.example .env
 # (Default value http://localhost:3000 should work for local development)
 
 # Run in development mode
-npm run dev
+yarn dev
 
 # Build for production
-npm run build
+yarn build
 
 # Preview production build
-npm run preview
+yarn preview
 ```
 
 
@@ -336,6 +338,75 @@ The Speak step (step 6) uses speech recognition for pronunciation practice:
 - Shows total completions and maximum completions per day
 
 ## API Endpoints
+
+### Authentication Endpoints
+
+#### POST `/api/auth/signup`
+Create a new user account
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User created successfully"
+}
+```
+
+**Note:** Sets an HTTP-only cookie with JWT token for authentication.
+
+#### POST `/api/auth/login`
+Login to an existing account
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Logged in successfully"
+}
+```
+
+**Note:** Sets an HTTP-only cookie with JWT token for authentication.
+
+#### POST `/api/auth/logout`
+Logout from the current session
+
+**Response:**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+**Note:** Clears the authentication cookie.
+
+#### GET `/api/auth/me`
+Get current user information (requires authentication)
+
+**Response:**
+```json
+{
+  "id": 1,
+  "email": "user@example.com"
+}
+```
+
+### Text Endpoints
+
+**Note:** All text endpoints require authentication.
 
 ### POST `/api/texts`
 Create a new translation
