@@ -25,6 +25,7 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
       minHeight: "2.5rem",
       borderTop: "none",
       paddingTop: 0,
+      justifyContent: "center",
     },
     targetStyle: { fontStyle: "normal", color: "#e4e4e7" },
     allowWordClick: true,
