@@ -27,7 +27,11 @@ yarn test
 
 ## Node.js Version
 
-Check `.nvmrc` for the required Node.js version. If it doesn't exist, the project requires Node.js 20+.
+Check `.nvmrc` for the required Node.js version.
+
+For frontend, the file is located at `frontend/.nvmrc`.
+
+For backend, the file is located at `backend/.nvmrc`.
 
 To use the correct version:
 ```bash
