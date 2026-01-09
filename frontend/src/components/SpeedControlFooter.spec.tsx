@@ -28,7 +28,8 @@ describe('SpeedControlFooter', () => {
     const button = screen.getByText('1.5x');
     fireEvent.click(button);
 
-    // The button should now have the active class
-    expect(button).toHaveClass('badge-alt');
+    // The button should now have the active Tailwind classes
+    expect(button).toHaveClass('bg-zinc-800');
+    expect(button).toHaveClass('text-white');
   });
 });

@@ -6,7 +6,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="container" style={{ textAlign: "center", marginTop: "2rem" }}>
+      <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6" style={{ textAlign: "center", marginTop: "2rem" }}>
         <p>Loading...</p>
       </div>
     );

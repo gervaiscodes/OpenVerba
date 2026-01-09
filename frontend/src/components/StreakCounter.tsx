@@ -1,4 +1,5 @@
 import { useStreak } from "../context/StreakContext";
+import { FlameIcon } from "./icons/FlameIcon";
 
 export function StreakCounter() {
   const { streak } = useStreak();
@@ -9,13 +10,18 @@ export function StreakCounter() {
 
   return (
     <div
-      className="streak-counter"
+      className="flex items-center gap-1 text-sm font-semibold transition-all"
       title={isActive ? `${streak} day streak!` : "No active streak"}
     >
-      <span className={`streak-flame${isActive ? " active" : ""}`}>
-        🔥
-      </span>
-      <span className="streak-count">{streak}</span>
+      <FlameIcon
+        size={16}
+        className={`transition-all duration-300 ${
+          isActive
+            ? "text-orange-500 drop-shadow-[0_0_4px_rgba(249,115,22,0.6)]"
+            : "text-zinc-600"
+        }`}
+      />
+      <span className="text-zinc-200">{streak}</span>
     </div>
   );
 }

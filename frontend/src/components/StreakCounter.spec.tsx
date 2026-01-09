@@ -41,14 +41,15 @@ describe('StreakCounter', () => {
       refreshStreak: vi.fn(),
     });
 
-    render(
+    const { container } = render(
       <MemoryRouter>
         <StreakCounter />
       </MemoryRouter>
     );
 
     expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText('🔥')).toBeInTheDocument();
+    // Check for the FlameIcon SVG
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
   it('shows active streak styling when streak > 0', () => {
@@ -57,15 +58,16 @@ describe('StreakCounter', () => {
       refreshStreak: vi.fn(),
     });
 
-    render(
+    const { container } = render(
       <MemoryRouter>
         <StreakCounter />
       </MemoryRouter>
     );
 
-    const flame = document.querySelector('.streak-flame.active');
-    expect(flame).toBeInTheDocument();
-    expect(flame).toHaveTextContent('🔥');
+    // Check for the FlameIcon SVG with active styling (orange color)
+    const svg = container.querySelector('svg');
+    expect(svg).toBeInTheDocument();
+    expect(svg).toHaveClass('text-orange-500');
 
     const counter = screen.getByTitle('3 day streak!');
     expect(counter).toBeInTheDocument();
@@ -77,16 +79,17 @@ describe('StreakCounter', () => {
       refreshStreak: vi.fn(),
     });
 
-    render(
+    const { container } = render(
       <MemoryRouter>
         <StreakCounter />
       </MemoryRouter>
     );
 
-    const flame = document.querySelector('.streak-flame');
-    expect(flame).toBeInTheDocument();
-    expect(flame).toHaveTextContent('🔥');
-    expect(flame).not.toHaveClass('active');
+    // Check for the FlameIcon SVG with inactive styling (zinc-600 color)
+    const svg = container.querySelector('svg');
+    expect(svg).toBeInTheDocument();
+    expect(svg).toHaveClass('text-zinc-600');
+    expect(svg).not.toHaveClass('text-orange-500');
 
     const counter = screen.getByTitle('No active streak');
     expect(counter).toBeInTheDocument();

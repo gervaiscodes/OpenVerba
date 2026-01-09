@@ -86,30 +86,31 @@ export function SentenceAlignment({
   return (
     <div
       ref={containerRef}
-      className={`sentence${isActive ? " active" : ""}`}
+      className={`p-3 sm:p-4 rounded-xl border transition-colors duration-200 ease-in-out mb-3 ${
+        isActive
+          ? "border-zinc-700 bg-[#0f0f10]"
+          : "bg-[#0a0a0a] border-zinc-800 hover:border-zinc-700 hover:bg-[#0f0f10]"
+      }`}
     >
       {config.showTokens && (
-        <div className="tokens">
+        <div className="flex flex-wrap gap-y-2 gap-x-1 sm:gap-y-5 sm:gap-x-3 items-end justify-center mb-4 sm:mb-10">
           {sortedItems.map((it, idx) => (
             <div
               key={`pair-${it.order}`}
-              className={`token${
-                hoveredOrder === it.order ? " highlight" : ""
+              className={`flex flex-col items-center text-center py-1 px-1 sm:py-[0.35rem] sm:px-2 rounded-md transition-colors duration-150 ease-in-out${
+                hoveredOrder === it.order ? " bg-[#18181b] shadow-[0_0_0_1px_#3f3f46]" : ""
               }`}
             >
-              <div className="src">{it.target}</div>
-              <div className={`tgt${idx === 0 ? " first-word" : ""}`}>
+              <div className="text-zinc-600 text-[0.65rem] sm:text-[0.8rem] font-medium mb-[0.35rem] lowercase tracking-[0.02em]">{it.target}</div>
+              <div className={`relative text-rose-400 text-[0.9rem] sm:text-base font-bold leading-[1.1] border-b-2 border-transparent pb-[0.1rem]${idx === 0 ? " capitalize" : ""}${it.occurrence_count === 1 ? " !border-dashed !border-[rgba(251,113,133,0.5)] !pb-1" : ""}`}>
                 {it.source}
-                {it.occurrence_count === 1 && (
-                  <span className="new-word-badge">new</span>
-                )}
               </div>
             </div>
           ))}
         </div>
       )}
       <div
-        className="sentence-text relative"
+        className="pt-3 sm:pt-8 border-t border-dashed border-zinc-800 flex flex-col gap-3 sm:gap-4 items-center text-center relative"
         style={config.containerStyle}
       >
         {sentence.audio_url && config.showAudioBtn && (
@@ -136,45 +137,25 @@ export function SentenceAlignment({
               e.stopPropagation();
               setIsRecording(!isRecording);
             }}
-            className={`record-btn ${isRecording ? 'recording' : ''}`}
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: '50%',
-              transform: 'translate(0, -50%)',
-              background: isRecording ? '#ef4444' : '#3f3f46',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              width: '48px',
-              height: '48px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 ${isRecording ? 'bg-red-500' : 'bg-zinc-700'} text-white border-0 rounded-full w-12 h-12 flex items-center justify-center cursor-pointer transition-all duration-200 ease-in-out`}
             title={isRecording ? "Stop recording" : "Start recording"}
           >
             {isRecording ? (
-              <div style={{ width: '16px', height: '16px', background: 'white', borderRadius: '2px' }} />
+              <div className="w-4 h-4 bg-white rounded-sm" />
             ) : (
-              <div style={{ width: '16px', height: '16px', background: '#ef4444', borderRadius: '50%' }} />
+              <div className="w-4 h-4 bg-red-500 rounded-full" />
             )}
           </button>
         )}
 
         {config.showSource && (
-          <div className="text-source">
+          <div className="text-zinc-100 text-[0.9rem] sm:text-base leading-relaxed font-normal max-w-full break-normal px-1 sm:px-2">
             {sortedItems.map((it, idx) => (
               <span
                 key={`s-${it.order}`}
-                className={`srcw${idx === 0 ? " first-word" : ""}${
-                  hoveredOrder === it.order ? " highlight" : ""
-                }`}
-                style={{
-                  cursor: config.allowWordClick ? "pointer" : "default",
-                }}
+                className={`rounded px-1 transition-all duration-150${idx === 0 ? " capitalize" : ""}${
+                  hoveredOrder === it.order ? " text-rose-400" : ""
+                } hover:text-white${config.allowWordClick ? " cursor-pointer" : " cursor-default"}`}
                 onMouseEnter={() => setHoveredOrder(it.order)}
                 onMouseLeave={() => setHoveredOrder(null)}
                 onClick={(e) => {
@@ -194,7 +175,7 @@ export function SentenceAlignment({
 
         {(config.showTarget === true || (config.showTarget === "conditional" && showTarget)) && (
           <div
-            className="text-target"
+            className="text-zinc-500 text-[0.9rem] sm:text-base italic font-normal max-w-full break-normal px-1 sm:px-2 leading-normal"
             style={config.targetStyle}
           >
             {sentence.target_sentence}

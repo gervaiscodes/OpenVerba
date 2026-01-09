@@ -22,8 +22,9 @@ describe("CoinsCounter", () => {
       refresh: vi.fn(),
     });
 
-    render(<CoinsCounter />);
+    const { container } = render(<CoinsCounter />);
     expect(screen.getByText("42")).toBeInTheDocument();
-    expect(screen.getByText("🪙")).toBeInTheDocument();
+    // Check for the CoinIcon SVG
+    expect(container.querySelector("svg")).toBeInTheDocument();
   });
 });

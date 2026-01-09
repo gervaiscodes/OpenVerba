@@ -78,19 +78,19 @@ export default function Submit() {
   }
 
   return (
-    <div className="container">
-      <h1 className="title">New translation</h1>
+    <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6">
+      <h1 className="mb-4 text-4xl font-extrabold text-center tracking-tight text-white sm:text-4xl text-2xl">New translation</h1>
 
 
 
-      <div className="form-container">
+      <div className="max-w-xl mx-auto bg-[#0a0a0a] p-4 sm:p-8 rounded-xl border border-zinc-800">
         <form onSubmit={onSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="source-language">I want to learn...</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div className="mb-6">
+              <label className="block mb-2 text-sm font-medium text-zinc-400" htmlFor="source-language">I want to learn...</label>
               <select
                 id="source-language"
-                className="form-control"
+                className="w-full py-3 px-4 bg-zinc-900 border border-zinc-800 rounded-lg text-white text-base transition-all focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400"
                 value={sourceLang}
                 onChange={(e) => setSourceLang(e.target.value)}
               >
@@ -101,11 +101,11 @@ export default function Submit() {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="target-language">I know...</label>
+            <div className="mb-6">
+              <label className="block mb-2 text-sm font-medium text-zinc-400" htmlFor="target-language">I know...</label>
               <select
                 id="target-language"
-                className="form-control"
+                className="w-full py-3 px-4 bg-zinc-900 border border-zinc-800 rounded-lg text-white text-base transition-all focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400"
                 value={targetLang}
                 onChange={(e) => setTargetLang(e.target.value)}
               >
@@ -118,9 +118,9 @@ export default function Submit() {
             </div>
           </div>
 
-          <div className="form-group">
+          <div className="mb-6">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-              <label className="form-label" htmlFor="text-to-translate" style={{ marginBottom: 0 }}>
+              <label className="block mb-2 text-sm font-medium text-zinc-400" htmlFor="text-to-translate" style={{ marginBottom: 0 }}>
                 {LANGUAGES.find(l => l.code === sourceLang)?.name} text to translate
               </label>
               <button
@@ -134,9 +134,9 @@ export default function Submit() {
 
             {mode === "generate" && (
               <div style={{ marginBottom: "1rem", padding: "1rem", background: "#18181b", borderRadius: "8px", border: "1px solid #27272a" }}>
-                <label className="form-label" style={{ display: "flex", justifyContent: "space-between" }}>
+                <label className="block mb-2 text-sm font-medium text-zinc-400" style={{ display: "flex", justifyContent: "space-between" }}>
                   <span>Number of sentences</span>
-                  <span className="badge">{numberOfSentences}</span>
+                  <span className="inline-flex items-center rounded-md bg-zinc-900 border border-zinc-800 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-200">{numberOfSentences}</span>
                 </label>
                 <input
                   type="range"
@@ -151,9 +151,9 @@ export default function Submit() {
                   The generated text will contain approximately {numberOfSentences} sentence{numberOfSentences !== 1 ? 's' : ''}.
                 </p>
 
-                <label className="form-label" style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem" }}>
+                <label className="block mb-2 text-sm font-medium text-zinc-400" style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem" }}>
                   <span>New words percentage</span>
-                  <span className="badge">{newWordsPercentage}%</span>
+                  <span className="inline-flex items-center rounded-md bg-zinc-900 border border-zinc-800 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-200">{newWordsPercentage}%</span>
                 </label>
                 <input
                   type="range"
@@ -170,7 +170,7 @@ export default function Submit() {
                 </p>
                 <button
                   type="button"
-                  className="btn"
+                  className="inline-flex items-center justify-center w-full py-3 px-6 bg-rose-400 text-white font-semibold text-base rounded-lg cursor-pointer transition-all hover:bg-rose-500 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-700"
                   onClick={onGenerate}
                   disabled={isGenerating}
                   style={{ width: "100%" }}
@@ -182,7 +182,7 @@ export default function Submit() {
 
             <textarea
               id="text-to-translate"
-              className="form-control"
+              className="w-full py-3 px-4 bg-zinc-900 border border-zinc-800 rounded-lg text-white text-base transition-all focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400"
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={6}
@@ -190,7 +190,7 @@ export default function Submit() {
             />
           </div>
 
-          <button type="submit" className="btn" disabled={isLoading || !text}>
+          <button type="submit" className="inline-flex items-center justify-center w-full py-3 px-6 bg-rose-400 text-white font-semibold text-base rounded-lg cursor-pointer transition-all hover:bg-rose-500 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-700" disabled={isLoading || !text}>
             {isLoading ? "Processing..." : "Translate Text"}
           </button>
         </form>

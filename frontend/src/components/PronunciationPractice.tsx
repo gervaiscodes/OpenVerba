@@ -154,24 +154,21 @@ export function PronunciationPractice({ targetText, language, words, onComplete,
 
   return (
     <div className="pronunciation-practice">
-      <div className="pronunciation-text" style={{ marginBottom: '1rem', color: '#e4e4e7' }}>
+      <div className="text-[0.9rem] sm:text-base mb-4 text-zinc-200">
         {targetText}
       </div>
 
-      <div style={{ flex: 1 }}>
+      <div className="flex-1">
         {transcript ? (
-           <div style={{ color: '#a1a1aa' }}>
-             {isRecording && <span style={{ color: '#ef4444', fontStyle: 'italic', marginRight: '0.5rem' }}>Listening...</span>}
+           <div className="text-zinc-400">
+             {isRecording && <span className="text-red-500 italic mr-2">Listening...</span>}
              You said: "
              {wordResults.map((w, i) => (
                <span
                  key={i}
-                 style={{
-                   color: w.status === 'correct' ? '#4ade80' : w.status === 'almost' ? '#fbbf24' : '#ef4444',
-                   marginRight: '4px',
-                   position: 'relative',
-                   display: 'inline-block'
-                 }}
+                 className={`mr-1 relative inline-block ${
+                   w.status === 'correct' ? 'text-green-400' : w.status === 'almost' ? 'text-amber-400' : 'text-red-500'
+                 }`}
                >
                  {w.status === 'correct' && <Firework />}
                  {w.word}
@@ -180,27 +177,25 @@ export function PronunciationPractice({ targetText, language, words, onComplete,
              "
            </div>
         ) : isRecording ? (
-          <span style={{ color: '#ef4444', fontStyle: 'italic' }}>Listening...</span>
+          <span className="text-red-500 italic">Listening...</span>
         ) : (
-          <span style={{ color: '#71717a' }}>Click record and speak...</span>
+          <span className="text-zinc-500">Click record and speak...</span>
         )}
       </div>
 
       {score !== null && (
-        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: score > 80 ? '#4ade80' : score > 50 ? '#fbbf24' : '#ef4444'
-          }}>
+        <div className="mt-4 flex items-center gap-2">
+          <span className={`text-2xl font-bold ${
+            score > 80 ? 'text-green-400' : score > 50 ? 'text-amber-400' : 'text-red-500'
+          }`}>
             {score}%
           </span>
-          <span style={{ color: '#a1a1aa' }}>accuracy</span>
+          <span className="text-zinc-400">accuracy</span>
         </div>
       )}
 
       {error && (
-        <div style={{ marginTop: '0.5rem', color: '#ef4444', fontSize: '0.875rem' }}>
+        <div className="mt-2 text-red-500 text-sm">
           {error}
         </div>
       )}

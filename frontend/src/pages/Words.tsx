@@ -52,22 +52,9 @@ function WordItem({ word }: { word: Word }) {
   }
 
   return (
-    <li
-      style={{
-        padding: "1rem 1.5rem",
-        borderBottom: "1px solid #27272a",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        transition: "background-color 0.2s ease",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0f0f10")}
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.backgroundColor = "transparent")
-      }
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        <div style={{ width: "2rem", height: "2rem", position: "relative", flexShrink: 0 }}>
+    <li className="p-4 sm:px-6 border-b border-zinc-800 flex justify-between items-center transition-colors duration-200 hover:bg-[#0f0f10]">
+      <div className="flex items-center gap-4">
+        <div className="w-8 h-8 relative shrink-0">
           {word.audio_url && (
             <button
               onClick={(e) => {
@@ -78,15 +65,7 @@ function WordItem({ word }: { word: Word }) {
                   playAudio();
                 }
               }}
-              className={`play-button${isPlaying ? " playing" : ""}`}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: "2rem",
-                height: "2rem",
-              }}
+              className={`play-button${isPlaying ? " playing" : ""} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8`}
               title={isPlaying ? "Pause audio" : "Play audio"}
             >
               {isPlaying ? <PauseIcon size={12} /> : <PlayIcon size={12} />}
@@ -94,47 +73,22 @@ function WordItem({ word }: { word: Word }) {
           )}
         </div>
         <div>
-          <p
-            style={{
-              margin: 0,
-              fontSize: "1.1rem",
-              fontWeight: 500,
-              color: "#e4e4e7",
-            }}
-          >
+          <p className="m-0 text-[1.1rem] font-medium text-zinc-200">
             {word.source_word}
           </p>
-          <p
-            style={{
-              margin: "0.25rem 0 0 0",
-              fontSize: "0.9rem",
-              color: "#a1a1aa",
-            }}
-          >
+          <p className="mt-1 mb-0 text-sm text-zinc-400">
             {word.target_word}
           </p>
         </div>
       </div>
-      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-        <span
-          className="badge"
-          style={{
-            background: "#27272a",
-            color: "#a1a1aa",
-            fontSize: "0.75rem",
-          }}
-        >
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center rounded-md bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-400">
           {word.occurrence_count}{" "}
           {word.occurrence_count === 1 ? "appearance" : "appearances"}
         </span>
         {word.writing_count > 0 && (
           <span
-            className="badge"
-            style={{
-              background: "#3b82f6",
-              color: "#ffffff",
-              fontSize: "0.75rem",
-            }}
+            className="inline-flex items-center rounded-md bg-blue-500 px-2 py-1 text-xs font-medium text-white"
             title="Writing completions"
           >
             ✍️ {word.writing_count}
@@ -142,12 +96,7 @@ function WordItem({ word }: { word: Word }) {
         )}
         {word.speaking_count > 0 && (
           <span
-            className="badge"
-            style={{
-              background: "#f97316",
-              color: "#ffffff",
-              fontSize: "0.75rem",
-            }}
+            className="inline-flex items-center rounded-md bg-orange-500 px-2 py-1 text-xs font-medium text-white"
             title="Speaking completions"
           >
             🗣️ {word.speaking_count}
@@ -192,10 +141,7 @@ export default function Words() {
 
   if (error) {
     return (
-      <div
-        className="container"
-        style={{ textAlign: "center", color: "#ef4444" }}
-      >
+      <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6 text-center text-red-500">
         Error: {error}
       </div>
     );
@@ -232,51 +178,26 @@ export default function Words() {
   };
 
   return (
-    <div className="container">
-      <h1 className="title">
+    <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6">
+      <h1 className="mb-4 text-4xl font-extrabold text-center tracking-tight text-white sm:text-4xl text-2xl">
         Words
       </h1>
 
       {Object.keys(groupedWords).length === 0 ? (
-        <div
-          className="sentence"
-          style={{ textAlign: "center", color: "#a1a1aa" }}
-        >
+        <div className="p-3 sm:p-4 rounded-xl bg-[#0a0a0a] border border-zinc-800 transition-colors duration-200 ease-in-out mb-3 text-center text-zinc-400">
           <p>No words found yet.</p>
         </div>
       ) : (
         <>
-          <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          <div className="flex flex-col gap-8">
             {Object.entries(paginatedGroupedWords).map(([language, words]) => (
-              <div
-                key={language}
-                style={{
-                  background: "#0a0a0a",
-                  borderRadius: "12px",
-                  border: "1px solid #27272a",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    background: "#18181b",
-                    padding: "1rem 1.5rem",
-                    borderBottom: "1px solid #27272a",
-                  }}
-                >
-                  <h2
-                    style={{
-                      margin: 0,
-                      fontSize: "1.25rem",
-                      fontWeight: 600,
-                      color: "#fff",
-                      textTransform: "capitalize",
-                    }}
-                  >
+              <div key={language} className="bg-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden">
+                <div className="bg-[#18181b] p-4 sm:px-6 border-b border-zinc-800">
+                  <h2 className="m-0 text-xl font-semibold text-white capitalize">
                     {getLanguageName(language)}
                   </h2>
                 </div>
-                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                <ul className="list-none m-0 p-0">
                   {words.map((word) => (
                     <WordItem key={word.id} word={word} />
                   ))}
@@ -286,72 +207,31 @@ export default function Words() {
           </div>
 
           {totalPages > 1 && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "1rem",
-                marginTop: "2rem",
-                padding: "1rem",
-              }}
-            >
+            <div className="flex justify-center items-center gap-4 mt-8 p-4">
               <button
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1}
-                style={{
-                  padding: "0.5rem 1rem",
-                  background: currentPage === 1 ? "#27272a" : "#3b82f6",
-                  color: currentPage === 1 ? "#71717a" : "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                  fontSize: "0.9rem",
-                  fontWeight: 500,
-                  transition: "background-color 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (currentPage !== 1) {
-                    e.currentTarget.style.backgroundColor = "#2563eb";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (currentPage !== 1) {
-                    e.currentTarget.style.backgroundColor = "#3b82f6";
-                  }
-                }}
+                className={`py-2 px-4 border-0 rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === 1
+                    ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white cursor-pointer hover:bg-blue-700'
+                }`}
               >
                 Previous
               </button>
 
-              <span style={{ color: "#a1a1aa", fontSize: "0.9rem" }}>
+              <span className="text-zinc-400 text-sm">
                 Page {currentPage} of {totalPages}
               </span>
 
               <button
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
-                style={{
-                  padding: "0.5rem 1rem",
-                  background: currentPage === totalPages ? "#27272a" : "#3b82f6",
-                  color: currentPage === totalPages ? "#71717a" : "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                  fontSize: "0.9rem",
-                  fontWeight: 500,
-                  transition: "background-color 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (currentPage !== totalPages) {
-                    e.currentTarget.style.backgroundColor = "#2563eb";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (currentPage !== totalPages) {
-                    e.currentTarget.style.backgroundColor = "#3b82f6";
-                  }
-                }}
+                className={`py-2 px-4 border-0 rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === totalPages
+                    ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white cursor-pointer hover:bg-blue-700'
+                }`}
               >
                 Next
               </button>

@@ -2,20 +2,13 @@ import { Skeleton } from "../Skeleton";
 
 export function StatsSkeleton() {
   return (
-    <div className="container">
+    <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6">
       <Skeleton
         width="200px"
         height="40px"
-        style={{ margin: "0 auto 2rem" }}
+        className="mx-auto mb-8"
       />
-      <div
-        style={{
-          background: "#0a0a0a",
-          border: "1px solid #27272a",
-          borderRadius: "12px",
-          padding: "2rem",
-        }}
-      >
+      <div className="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-8">
         <Skeleton width="100%" height="300px" borderRadius="8px" />
       </div>
     </div>

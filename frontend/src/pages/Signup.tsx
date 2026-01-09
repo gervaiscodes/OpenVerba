@@ -26,7 +26,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="container" style={{ maxWidth: 400, margin: "2rem auto" }}>
+    <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6" style={{ maxWidth: 400, margin: "2rem auto" }}>
       <h2 style={{ marginBottom: "1.5rem", textAlign: "center" }}>
         Sign up for OpenVerba
       </h2>
@@ -96,7 +96,7 @@ export default function Signup() {
         <button
           type="submit"
           disabled={loading}
-          className="badge badge-alt"
+          className="inline-flex items-center justify-center rounded-md bg-zinc-800 border border-zinc-700 text-sm font-semibold uppercase tracking-wide text-white"
           style={{
             width: "100%",
             padding: "0.75rem",
@@ -110,7 +110,7 @@ export default function Signup() {
       </form>
       <p style={{ marginTop: "1.5rem", textAlign: "center" }}>
         Already have an account?{" "}
-        <Link to="/login" className="badge" style={{ marginLeft: "0.5rem" }}>
+        <Link to="/login" className="inline-flex items-center rounded-md bg-zinc-900 border border-zinc-800 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-200" style={{ marginLeft: "0.5rem" }}>
           Login
         </Link>
       </p>

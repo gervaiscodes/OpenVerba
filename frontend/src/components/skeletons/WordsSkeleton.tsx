@@ -2,57 +2,40 @@ import { Skeleton } from "../Skeleton";
 
 export function WordsSkeleton() {
   return (
-    <div className="container">
+    <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6">
       <Skeleton
         width="120px"
         height="40px"
-        style={{ margin: "0 auto 2rem" }}
+        className="mx-auto mb-8"
       />
-      <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <div className="flex flex-col gap-8">
         {[1, 2].map((groupIndex) => (
           <div
             key={groupIndex}
-            style={{
-              background: "#0a0a0a",
-              borderRadius: "12px",
-              border: "1px solid #27272a",
-              overflow: "hidden",
-            }}
+            className="bg-[#0a0a0a] rounded-xl border border-zinc-800 overflow-hidden"
           >
-            <div
-              style={{
-                background: "#18181b",
-                padding: "1rem 1.5rem",
-                borderBottom: "1px solid #27272a",
-              }}
-            >
+            <div className="bg-[#18181b] p-4 sm:px-6 border-b border-zinc-800">
               <Skeleton width="150px" height="24px" />
             </div>
             <div>
               {[1, 2, 3].map((wordIndex) => (
                 <div
                   key={wordIndex}
-                  style={{
-                    padding: "1rem 1.5rem",
-                    borderBottom: "1px solid #27272a",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
+                  className="p-4 sm:px-6 border-b border-zinc-800 flex justify-between items-center"
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <div className="flex items-center gap-4">
                     <Skeleton
                       width="2rem"
                       height="2rem"
                       borderRadius="50%"
-                      style={{ flexShrink: 0 }}
+                      className="flex-shrink-0"
                     />
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    <div className="flex flex-col gap-2">
                       <Skeleton width="120px" height="18px" />
                       <Skeleton width="100px" height="14px" />
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <div className="flex gap-2">
                     <Skeleton width="90px" height="20px" borderRadius="6px" />
                   </div>
                 </div>

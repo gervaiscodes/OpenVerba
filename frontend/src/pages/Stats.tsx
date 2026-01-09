@@ -38,15 +38,15 @@ export default function Stats() {
 
   if (error) {
     return (
-      <div className="container">
+      <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6">
         <div style={{ color: "crimson" }}>Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <div className="container">
-      <h1 className="title">Statistics</h1>
+    <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6">
+      <h1 className="mb-4 text-4xl font-extrabold text-center tracking-tight text-white sm:text-4xl text-2xl">Statistics</h1>
       <CompletionGraph stats={stats} />
     </div>
   );

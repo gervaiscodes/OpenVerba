@@ -22,25 +22,45 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <header className="app-header">
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <h2 className="title">OpenVerba</h2>
-        </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <nav className="app-nav">
-            <Link to="/stats" className="badge">
+      <header className="sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/95 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/80">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:h-16 sm:px-6">
+          <Link to="/" className="flex items-center gap-2">
+            <span className="text-lg font-bold tracking-tight text-white sm:text-xl">
+              OpenVerba
+            </span>
+          </Link>
+
+          <nav className="flex items-center gap-1 sm:gap-2">
+            <Link
+              to="/stats"
+              className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 sm:px-3 sm:py-2"
+            >
               <StreakCounter />
               <CoinsCounter />
             </Link>
-            <Link to="/words" className="badge">Words</Link>
-            <Link to="/submit" className="badge badge-alt">New text</Link>
+
+            <Link
+              to="/words"
+              className="rounded-md px-2 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 sm:px-3 sm:py-2"
+            >
+              Words
+            </Link>
+
+            <Link
+              to="/submit"
+              className="rounded-md bg-zinc-800 px-2 py-1.5 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-700 sm:px-3 sm:py-2"
+            >
+              <span className="hidden sm:inline">New text</span>
+              <span className="sm:hidden">+</span>
+            </Link>
+
             <button
               onClick={logout}
-              className="badge"
-              style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}
+              className="rounded-md px-2 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 sm:px-3 sm:py-2"
               title={`Logout (${user?.email})`}
             >
-              Logout
+              <span className="hidden sm:inline">Logout</span>
+              <span className="sm:hidden">↪</span>
             </button>
           </nav>
         </div>

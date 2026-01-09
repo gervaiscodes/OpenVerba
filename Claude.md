@@ -219,9 +219,67 @@ export class ControllerName {
 - React Router for navigation
 
 ### Styling: TailwindCSS v4
-- Utility-first CSS
+
+**IMPORTANT: Always prefer Tailwind utility classes over custom CSS or inline styles.**
+
+#### Tailwind-First Approach
+- Use Tailwind utility classes for all styling needs whenever possible
+- Avoid inline `style={{}}` props in React components - use Tailwind classes instead
+- Avoid creating custom CSS classes - use Tailwind utilities instead
+- Only create custom CSS classes when Tailwind doesn't offer the required functionality
+
+#### When to Use Custom CSS
+Custom CSS classes are acceptable ONLY for:
+- Complex pseudo-elements (e.g., `::before`, `::after` with dynamic content)
+- Vendor-specific prefixes that Tailwind doesn't support
+- Complex animations or keyframes (use `@keyframes` in CSS)
+- CSS features that Tailwind fundamentally cannot replicate
+
+#### Good Examples
+```tsx
+// GOOD - Using Tailwind classes
+<div className="flex items-center gap-4 p-4 bg-zinc-900 rounded-lg hover:bg-zinc-800">
+  <span className="text-sm text-zinc-400">Hello</span>
+</div>
+
+// GOOD - Conditional Tailwind classes
+<button className={`py-2 px-4 rounded-lg ${isActive ? 'bg-blue-600' : 'bg-zinc-700'}`}>
+  Click me
+</button>
+
+// GOOD - Using arbitrary values when needed
+<div className="text-[0.9rem] bg-[#0a0a0a] w-[calc(100%-2rem)]">
+  Content
+</div>
+```
+
+#### Bad Examples
+```tsx
+// BAD - Using inline styles instead of Tailwind
+<div style={{ display: 'flex', gap: '1rem', padding: '1rem' }}>
+  Content
+</div>
+
+// BAD - Creating custom CSS class for simple styling
+.my-container {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+// GOOD - Use Tailwind instead
+<div className="flex gap-4 p-4">
+  Content
+</div>
+```
+
+#### Tailwind Utilities
+- Utility-first CSS approach
 - Use `cn()` helper from `utils/cn.ts` for conditional classes
 - Component variants with `class-variance-authority`
+- Leverage arbitrary values with `[]` for exact matches (e.g., `text-[0.9rem]`, `bg-[#0a0a0a]`)
+- Use responsive prefixes: `sm:`, `md:`, `lg:`, etc.
+- Use state modifiers: `hover:`, `focus:`, `active:`, `disabled:`, etc.
 
 ### State Management
 - React Context for global state (auth, settings)
