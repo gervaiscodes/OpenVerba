@@ -2,6 +2,7 @@ import db from "../lib/db.js";
 import translate from "../lib/translate.js";
 import { generateAudioForText } from "../lib/audio.js";
 import generate from "../lib/generate.js";
+import { TextStepCompletionService } from "./textStepCompletionService.js";
 
 export class TextService {
   static async createText(
@@ -169,6 +170,13 @@ export class TextService {
       ORDER BY sw.order_in_sentence
     `);
 
+    // Get step completion counts for all texts
+    const textIds = texts.map((t) => t.id);
+    const completionCounts = TextStepCompletionService.getCompletionCounts(
+      textIds,
+      userId
+    );
+
     // Reconstruct translation data for each text
     return texts.map((text) => {
       const sentences = sentencesStmt.all(text.id) as Array<{
@@ -211,6 +219,7 @@ export class TextService {
         target_language: text.target_language,
         translation_data: JSON.stringify(translationData),
         created_at: text.created_at,
+        completed_steps: completionCounts.get(text.id) || 0,
       };
     });
   }

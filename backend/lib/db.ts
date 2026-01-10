@@ -72,6 +72,17 @@ export const SCHEMA = `
     FOREIGN KEY (word_id) REFERENCES words(id)
   );
 
+  CREATE TABLE IF NOT EXISTS text_step_completions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    text_id INTEGER NOT NULL,
+    step_number INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (text_id) REFERENCES texts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(text_id, step_number, user_id)
+  );
+
   -- ========================================
   -- PERFORMANCE INDEXES
   -- ========================================
@@ -102,6 +113,11 @@ export const SCHEMA = `
   CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
   CREATE INDEX IF NOT EXISTS idx_texts_user_id ON texts(user_id);
   CREATE INDEX IF NOT EXISTS idx_words_user_id ON words(user_id);
+
+  -- STEP COMPLETION: Indexes for text step completion tracking
+  CREATE INDEX IF NOT EXISTS idx_text_step_completions_text_user ON text_step_completions(text_id, user_id);
+  CREATE INDEX IF NOT EXISTS idx_text_step_completions_user ON text_step_completions(user_id);
+  CREATE INDEX IF NOT EXISTS idx_text_step_completions_completed_at ON text_step_completions(completed_at);
 `;
 
 // Create database schema
@@ -119,6 +135,40 @@ try {
 } catch (error) {
   // Column might already exist or table doesn't exist yet
   // Safe to ignore as schema creation handles new databases
+}
+
+// Migration: Create text_step_completions table if it doesn't exist
+try {
+  const tables = db
+    .prepare(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='text_step_completions'"
+    )
+    .all();
+
+  if (tables.length === 0) {
+    db.exec(`
+      CREATE TABLE text_step_completions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        text_id INTEGER NOT NULL,
+        step_number INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (text_id) REFERENCES texts(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE(text_id, step_number, user_id)
+      );
+
+      CREATE INDEX idx_text_step_completions_text_user
+        ON text_step_completions(text_id, user_id);
+      CREATE INDEX idx_text_step_completions_user
+        ON text_step_completions(user_id);
+      CREATE INDEX idx_text_step_completions_completed_at
+        ON text_step_completions(completed_at);
+    `);
+    console.log("Migration: Created text_step_completions table");
+  }
+} catch (error) {
+  console.error("Migration failed:", error);
 }
 
 export default db;

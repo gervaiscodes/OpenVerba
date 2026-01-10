@@ -54,6 +54,7 @@ describe("TextService", () => {
     // Initialize/Reset schema in the in-memory DB
     // We drop tables to ensure a clean state for each test
     db.exec(`
+      DROP TABLE IF EXISTS text_step_completions;
       DROP TABLE IF EXISTS completions;
       DROP TABLE IF EXISTS sentence_words;
       DROP TABLE IF EXISTS sentences;

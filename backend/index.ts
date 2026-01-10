@@ -8,6 +8,7 @@ import rateLimit from "@fastify/rate-limit";
 import { TextController } from "./controllers/textController.js";
 import { WordController } from "./controllers/wordController.js";
 import { CompletionController } from "./controllers/completionController.js";
+import { TextStepCompletionController } from "./controllers/textStepCompletionController.js";
 import { AuthController } from "./controllers/authController.js";
 import { requireAuth } from "./middleware/auth.js";
 
@@ -80,6 +81,11 @@ fastify.post("/api/completions", { preHandler: requireAuth }, CompletionControll
 fastify.get("/api/completions/streak", { preHandler: requireAuth }, CompletionController.getStreak);
 fastify.get("/api/completions/stats", { preHandler: requireAuth }, CompletionController.getStats);
 fastify.get("/api/completions/total", { preHandler: requireAuth }, CompletionController.getTotal);
+
+// Text step completion routes (protected)
+fastify.post("/api/text-step-completions", { preHandler: requireAuth }, TextStepCompletionController.markComplete);
+fastify.get("/api/texts/:id/step-completions", { preHandler: requireAuth }, TextStepCompletionController.getCompletions);
+fastify.delete("/api/texts/:id/step-completions", { preHandler: requireAuth }, TextStepCompletionController.reset);
 
 async function start() {
   try {

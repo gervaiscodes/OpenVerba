@@ -12,6 +12,7 @@ type Text = {
   source_language: string;
   target_language: string;
   created_at: string;
+  completed_steps: number;
 };
 
 export default function Texts() {
@@ -70,10 +71,29 @@ export default function Texts() {
                 </span>
               </div>
               <div className="text-preview whitespace-pre-wrap">{getFirstSentences(t.text, 2)}</div>
+              <ProgressBar completed={t.completed_steps} total={6} />
             </div>
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function ProgressBar({ completed, total }: { completed: number; total: number }) {
+  const percentage = (completed / total) * 100;
+
+  return (
+    <div className="mt-3 flex items-center gap-2">
+      <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-emerald-600 rounded-full transition-all duration-300"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+      <span className="text-xs text-zinc-400 font-medium min-w-[3.5rem] text-right">
+        {completed}/{total} steps
+      </span>
     </div>
   );
 }

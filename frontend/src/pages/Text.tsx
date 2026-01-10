@@ -20,6 +20,9 @@ export default function Text() {
   const [step, setStep] = useState(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [isMarkingComplete, setIsMarkingComplete] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -46,6 +49,24 @@ export default function Text() {
     return () => {
       cancelled = true;
     };
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    fetch(`${API_BASE_URL}/api/texts/${id}/step-completions`, {
+      credentials: 'include',
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load completions");
+        return r.json();
+      })
+      .then((json: { completed_steps: number[] }) => {
+        setCompletedSteps(json.completed_steps);
+      })
+      .catch((e: unknown) => {
+        console.error("Failed to load completions:", e);
+      });
   }, [id]);
 
   if (!data && !error) return <TextDetailSkeleton />;
@@ -95,6 +116,72 @@ export default function Text() {
     }
   }
 
+  async function handleMarkStepComplete() {
+    if (!id) return;
+    setIsMarkingComplete(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/text-step-completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          text_id: parseInt(id, 10),
+          step_number: step,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to mark step complete");
+      }
+
+      setCompletedSteps((prev) => {
+        if (prev?.includes(step)) return prev;
+        return [...(prev || []), step].sort();
+      });
+
+      if (step === 6) {
+        navigate("/");
+      } else {
+        setStep(step + 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch (error) {
+      console.error("Failed to mark step complete:", error);
+      alert("Failed to mark step complete. Please try again.");
+    } finally {
+      setIsMarkingComplete(false);
+    }
+  }
+
+  async function handleResetCompletions() {
+    if (!id) return;
+    setIsResetting(true);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/texts/${id}/step-completions`,
+        {
+          method: "DELETE",
+          credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to reset completions");
+      }
+
+      setCompletedSteps([]);
+    } catch (error) {
+      console.error("Failed to reset completions:", error);
+      alert("Failed to reset completions. Please try again.");
+    } finally {
+      setIsResetting(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6">
       <div className="flex gap-4 items-center justify-center text-zinc-500 font-medium text-sm" style={{ marginBottom: "1.5rem" }}>
@@ -105,45 +192,75 @@ export default function Text() {
 
       <div className="flex bg-[#0a0a0a] p-1 rounded-lg border border-zinc-800 mb-4 sm:mb-8 gap-0.5 sm:gap-1">
         <button
-          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 1 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""}`}
+          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 1 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""} ${completedSteps?.includes(1) ? "text-emerald-400 hover:text-emerald-300" : ""}`}
           onClick={() => setStep(1)}
           data-number="1"
         >
+          {completedSteps?.includes(1) && (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
           1. {getLanguageName(data.source_language)}
         </button>
         <button
-          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 2 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""}`}
+          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 2 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""} ${completedSteps?.includes(2) ? "text-emerald-400 hover:text-emerald-300" : ""}`}
           onClick={() => setStep(2)}
           data-number="2"
         >
+          {completedSteps?.includes(2) && (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
           2. Listen
         </button>
         <button
-          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 3 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""}`}
+          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 3 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""} ${completedSteps?.includes(3) ? "text-emerald-400 hover:text-emerald-300" : ""}`}
           onClick={() => setStep(3)}
           data-number="3"
         >
+          {completedSteps?.includes(3) && (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
           3. Dual
         </button>
         <button
-          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 4 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""}`}
+          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 4 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""} ${completedSteps?.includes(4) ? "text-emerald-400 hover:text-emerald-300" : ""}`}
           onClick={() => setStep(4)}
           data-number="4"
         >
+          {completedSteps?.includes(4) && (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
           4. {getLanguageName(data.target_language)}
         </button>
         <button
-          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 5 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""}`}
+          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 5 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""} ${completedSteps?.includes(5) ? "text-emerald-400 hover:text-emerald-300" : ""}`}
           onClick={() => setStep(5)}
           data-number="5"
         >
+          {completedSteps?.includes(5) && (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
           5. Write
         </button>
         <button
-          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 6 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""}`}
+          className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 6 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""} ${completedSteps?.includes(6) ? "text-emerald-400 hover:text-emerald-300" : ""}`}
           onClick={() => setStep(6)}
           data-number="6"
         >
+          {completedSteps?.includes(6) && (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
           6. Speak
         </button>
       </div>
@@ -201,6 +318,36 @@ export default function Text() {
           </div>
         </div>
       )}
+
+      <div className="mt-8 flex flex-col gap-4 items-center border-t border-zinc-800 pt-6">
+        <button
+          onClick={handleMarkStepComplete}
+          disabled={isMarkingComplete || completedSteps?.includes(step)}
+          className={`py-2.5 px-6 rounded-lg text-sm font-semibold transition-all ${
+            completedSteps?.includes(step)
+              ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700"
+              : "bg-emerald-600 text-white hover:bg-emerald-700 border-none cursor-pointer"
+          } ${isMarkingComplete ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          {isMarkingComplete
+            ? "Marking Complete..."
+            : completedSteps?.includes(step)
+            ? `Step ${step} Already Completed ✓`
+            : `Mark Step ${step} as Complete`}
+        </button>
+
+        {completedSteps?.length > 0 && (
+          <button
+            onClick={handleResetCompletions}
+            disabled={isResetting}
+            className={`py-2 px-4 rounded-lg bg-zinc-800 text-zinc-400 border border-zinc-700 text-sm font-medium hover:bg-zinc-700 hover:text-zinc-200 transition-all ${
+              isResetting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }`}
+          >
+            {isResetting ? "Resetting..." : "Reset All Completions"}
+          </button>
+        )}
+      </div>
 
       <div style={{
         marginTop: '2rem',
