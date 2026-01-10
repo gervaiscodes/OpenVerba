@@ -309,10 +309,10 @@ OpenVerba/
 
 Each text follows a structured 6-step learning process:
 
-1. **Read Target**: Read the translation in your native language
+1. **Read Translation**: Read the text in your known language (the translation)
 2. **Listen**: Listen to the audio pronunciation while reading the translation
-3. **Dual**: View both source and target languages side-by-side with word-by-word alignment
-4. **Read Source**: Read the original text in the language you're learning
+3. **Dual**: View both languages side-by-side with word-by-word alignment
+4. **Read Original**: Read the text in the language you're learning
 5. **Write**: Complete cloze exercises where you type the missing letters of each word (only the first letter is shown)
 6. **Speak**: Practice pronunciation with real-time speech recognition and accuracy scoring
 
@@ -328,7 +328,7 @@ The Speak step (step 6) uses speech recognition for pronunciation practice:
 - Click the record button to start recording your pronunciation
 - Speak the sentence shown on screen
 - The app uses the Web Speech API to recognize your speech
-- You'll receive an accuracy score comparing your pronunciation to the target text
+- You'll receive an accuracy score comparing your pronunciation to the expected text
 - Correctly pronounced words are automatically tracked as "speaking" practice
 - Scores above 80% are considered excellent, 50-80% are good, and below 50% need improvement
 
@@ -414,11 +414,16 @@ Create a new translation
 **Request Body:**
 ```json
 {
-  "text": "Hello, how are you?",
+  "text": "¿Hola, cómo estás?",
   "source_language": "en",
   "target_language": "es"
 }
 ```
+
+**Note:**
+- `text` should be in the language you want to learn (`target_language`)
+- `source_language` is the language you know (for translations)
+- `target_language` is the language you're learning
 
 **Response:**
 ```json
@@ -465,31 +470,42 @@ Generate a new text based on known words
 ```json
 {
   "source_language": "es",
-  "target_language": "en",
-  "topic": "travel"
+  "new_words_percentage": 20,
+  "number_of_sentences": 4
 }
 ```
 
+**Note:**
+- `source_language` is the language to generate text in (the language you're learning)
+- `new_words_percentage` controls how many new words to introduce (0-100)
+- `number_of_sentences` is optional, defaults to 4
+
 ### GET `/api/words`
-Get all words grouped by language with frequency counts and completion counts
+Get all words grouped by language (the language you're learning)
 
 **Response:**
 ```json
 {
-  "en": [
+  "es": [
     {
       "id": 1,
-      "source_word": "hello",
-      "target_word": "hola",
-      "source_language": "en",
+      "source_word": "hola",
+      "target_word": "hello",
+      "target_language": "es",
       "occurrence_count": 5,
       "writing_count": 2,
       "speaking_count": 1,
-      "audio_url": "/audio/hello.mp3"
+      "audio_url": "/audio/hola.mp3"
     }
   ]
 }
 ```
+
+**Note:**
+- Words are grouped by `target_language` (the language you're learning)
+- `source_word` contains the word in the language you're learning
+- `target_word` contains the translation in your known language
+- Audio is generated for `source_word` (learning language)
 
 ### POST `/api/completions`
 Record a word completion (used when user successfully completes a cloze exercise or pronunciation practice)
@@ -542,11 +558,27 @@ Get completion statistics grouped by date
 
 The application uses SQLite with the following tables:
 
-- **texts**: Stores original texts and metadata (includes `audio_status` field to track async audio generation: 'pending', 'processing', 'completed', or 'failed')
-- **sentences**: Stores translated sentences
+- **texts**: Stores original texts and metadata
+  - `source_language`: The language you know (for translations)
+  - `target_language`: The language you're learning
+  - `text`: The original text in the target language
+  - `audio_status`: Tracks async audio generation ('pending', 'processing', 'completed', or 'failed')
+
+- **sentences**: Stores sentence translations
+  - `source_sentence`: Sentence in the target language (learning language)
+  - `target_sentence`: Translation in the source language (known language)
+  - Note: Audio is generated for `source_sentence`
+
 - **words**: Stores unique word translations
+  - `source_word`: Word in the target language (learning language)
+  - `target_word`: Translation in the source language (known language)
+  - `target_language`: The language you're learning (used for grouping)
+  - Note: Audio is generated for `source_word`
+
 - **sentence_words**: Links words to sentences
 - **completions**: Tracks word completions for practice streaks (stores `word_id`, `method` ('writing' or 'speaking'), and `completed_at` timestamp)
+
+**Important:** The field naming can be confusing - `source_*` fields actually contain the learning language content, while `target_*` fields contain the known language content. The language code fields (`source_language` and `target_language`) follow the correct semantic naming.
 
 ### Database Indexes
 
@@ -563,9 +595,11 @@ The database includes optimized indexes for query performance:
 - `idx_texts_created_at` - Optimizes text list ordering
 
 **Additional Indexes (Low Priority):**
-- `idx_words_source_language` - Optimizes word grouping by language
+- `idx_words_source_language` - Legacy index (should be updated to `idx_words_target_language` for optimal performance)
 - `idx_sentences_order_in_text` - Optimizes sentence ordering
 - `idx_sentence_words_order` - Optimizes word ordering within sentences
+
+**Note:** Words are now grouped by `target_language` (the language you're learning), so consider adding an index on `words(target_language)` for better performance.
 
 These indexes significantly improve query performance, especially for:
 - Loading text lists (50-200x faster with many texts)
