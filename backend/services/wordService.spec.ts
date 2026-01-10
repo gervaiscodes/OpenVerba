@@ -94,7 +94,7 @@ describe("WordService", () => {
         .prepare(
           `
         INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
-        VALUES ('hello', 'bonjour', 'en', 'fr', ?)
+        VALUES ('bonjour', 'hello', 'en', 'fr', ?)
       `
         )
         .run(TEST_USER_ID).lastInsertRowid;
@@ -103,7 +103,7 @@ describe("WordService", () => {
         .prepare(
           `
         INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
-        VALUES ('world', 'monde', 'en', 'fr', ?)
+        VALUES ('monde', 'world', 'en', 'fr', ?)
       `
         )
         .run(TEST_USER_ID).lastInsertRowid;
@@ -112,7 +112,7 @@ describe("WordService", () => {
         .prepare(
           `
         INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
-        VALUES ('hola', 'hello', 'es', 'en', ?)
+        VALUES ('hello', 'hola', 'es', 'en', ?)
       `
         )
         .run(TEST_USER_ID).lastInsertRowid;
@@ -153,15 +153,15 @@ describe("WordService", () => {
 
       const result = WordService.getGroupedWords(TEST_USER_ID);
 
-      expect(Object.keys(result)).toEqual(expect.arrayContaining(["en", "es"]));
+      expect(Object.keys(result)).toEqual(expect.arrayContaining(["en", "fr"]));
 
-      // Check English words
-      const enWords = result["en"];
-      expect(enWords).toHaveLength(2); // hello, world (punct excluded)
+      // Check French words (target_language='fr': bonjour->hello, monde->world)
+      const frWords = result["fr"];
+      expect(frWords).toHaveLength(2); // bonjour, monde (punct excluded)
 
       // Verify sorting: both have 1 text occurrence.
       // If counts are equal, order is not strictly defined by the query unless we add secondary sort.
-      // The query is: ORDER BY w.source_language, occurrence_count DESC
+      // The query is: ORDER BY w.target_language, occurrence_count DESC
       // Let's add another text for w1 to make it have higher count.
 
       const textId3 = db
@@ -184,18 +184,18 @@ describe("WordService", () => {
 
       // Now w1 has 2 distinct texts, w2 has 1.
       const result2 = WordService.getGroupedWords(TEST_USER_ID);
-      const enWords2 = result2["en"];
+      const frWords2 = result2["fr"];
 
-      expect(enWords2[0].source_word).toBe("hello");
-      expect(enWords2[0].occurrence_count).toBe(2);
+      expect(frWords2[0].source_word).toBe("bonjour");
+      expect(frWords2[0].occurrence_count).toBe(2);
 
-      expect(enWords2[1].source_word).toBe("world");
-      expect(enWords2[1].occurrence_count).toBe(1);
+      expect(frWords2[1].source_word).toBe("monde");
+      expect(frWords2[1].occurrence_count).toBe(1);
 
-      // Check Spanish words
-      const esWords = result2["es"];
-      expect(esWords).toHaveLength(1);
-      expect(esWords[0].source_word).toBe("hola");
+      // Check English words (target_language='en')
+      const enWords = result2["en"];
+      expect(enWords).toHaveLength(1);
+      expect(enWords[0].source_word).toBe("hello");
 
       // Check Punctuation filtered
       const allWords = Object.values(result2).flat();

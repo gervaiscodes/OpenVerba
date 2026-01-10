@@ -5,8 +5,8 @@ const PROMPT = `You are a helper for a language-learning app.
 Your input will always be:
 
 1. text - a continuous (possibly multi-line) text in {SOURCE_LANG}.
-2. source_language - the language the text is written in: the language to learn.
-3. target_language - the learner's base language
+2. source_language - the language the text is written in.
+3. target_language - the language to translate the text into.
 
 Your job:
 

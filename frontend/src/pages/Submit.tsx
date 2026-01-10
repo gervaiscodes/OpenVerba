@@ -7,8 +7,8 @@ import { LANGUAGES } from "../utils/languages";
 export default function Submit() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"manual" | "generate">("manual");
-  const [sourceLang, setSourceLang] = useState("pl");
-  const [targetLang, setTargetLang] = useState("fr");
+  const [sourceLang, setSourceLang] = useState("fr");
+  const [targetLang, setTargetLang] = useState("pl");
   const [text, setText] = useState("");
   const [newWordsPercentage, setNewWordsPercentage] = useState(10);
   const [numberOfSentences, setNumberOfSentences] = useState(4);
@@ -25,7 +25,7 @@ export default function Submit() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          source_language: sourceLang,
+          source_language: targetLang,
           new_words_percentage: newWordsPercentage,
           number_of_sentences: numberOfSentences,
         }),
@@ -87,7 +87,7 @@ export default function Submit() {
         <form onSubmit={onSubmit}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div className="mb-6">
-              <label className="block mb-2 text-sm font-medium text-zinc-400" htmlFor="source-language">I want to learn...</label>
+              <label className="block mb-2 text-sm font-medium text-zinc-400" htmlFor="source-language">I know...</label>
               <select
                 id="source-language"
                 className="w-full py-3 px-4 bg-zinc-900 border border-zinc-800 rounded-lg text-white text-base transition-all focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400"
@@ -102,7 +102,7 @@ export default function Submit() {
               </select>
             </div>
             <div className="mb-6">
-              <label className="block mb-2 text-sm font-medium text-zinc-400" htmlFor="target-language">I know...</label>
+              <label className="block mb-2 text-sm font-medium text-zinc-400" htmlFor="target-language">I want to learn...</label>
               <select
                 id="target-language"
                 className="w-full py-3 px-4 bg-zinc-900 border border-zinc-800 rounded-lg text-white text-base transition-all focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400"
@@ -121,7 +121,7 @@ export default function Submit() {
           <div className="mb-6">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
               <label className="block mb-2 text-sm font-medium text-zinc-400" htmlFor="text-to-translate" style={{ marginBottom: 0 }}>
-                {LANGUAGES.find(l => l.code === sourceLang)?.name} text to translate
+                {LANGUAGES.find(l => l.code === targetLang)?.name} text to translate
               </label>
               <button
                 type="button"

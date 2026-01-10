@@ -77,7 +77,7 @@ describe("WordController", () => {
         .prepare(
           `
         INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
-        VALUES ('hello', 'bonjour', 'en', 'fr', ?)
+        VALUES ('bonjour', 'hello', 'en', 'fr', ?)
       `
         )
         .run(TEST_USER_ID).lastInsertRowid;
@@ -86,7 +86,7 @@ describe("WordController", () => {
         .prepare(
           `
         INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
-        VALUES ('world', 'monde', 'en', 'fr', ?)
+        VALUES ('monde', 'world', 'en', 'fr', ?)
       `
         )
         .run(TEST_USER_ID).lastInsertRowid;
@@ -116,19 +116,19 @@ describe("WordController", () => {
 
       // 4. Assertions
       expect(result).toBeDefined();
-      expect(result).toHaveProperty("en");
+      expect(result).toHaveProperty("fr");
 
-      const enWords = result["en"];
-      expect(enWords).toHaveLength(2);
+      const frWords = result["fr"];
+      expect(frWords).toHaveLength(2);
 
-      // Check for specific words
-      const helloWord = enWords.find((w: any) => w.source_word === "hello");
-      expect(helloWord).toBeDefined();
-      expect(helloWord!.target_word).toBe("bonjour");
+      // Check for specific words (grouped by target_language='fr')
+      const bonjourWord = frWords.find((w: any) => w.source_word === "bonjour");
+      expect(bonjourWord).toBeDefined();
+      expect(bonjourWord!.target_word).toBe("hello");
 
-      const worldWord = enWords.find((w: any) => w.source_word === "world");
-      expect(worldWord).toBeDefined();
-      expect(worldWord!.target_word).toBe("monde");
+      const mondeWord = frWords.find((w: any) => w.source_word === "monde");
+      expect(mondeWord).toBeDefined();
+      expect(mondeWord!.target_word).toBe("world");
     });
 
     it("should handle errors gracefully", async () => {

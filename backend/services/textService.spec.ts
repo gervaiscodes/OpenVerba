@@ -75,9 +75,9 @@ describe("TextService", () => {
           sentences: [
             {
               id: 1,
-              source_sentence: "Hello",
-              target_sentence: "Bonjour",
-              items: [{ source: "Hello", target: "Bonjour", order: 1 }],
+              source_sentence: "Bonjour",
+              target_sentence: "Hello",
+              items: [{ source: "Bonjour", target: "Hello", order: 1 }],
             },
           ],
         },
@@ -89,16 +89,16 @@ describe("TextService", () => {
       };
       (translate as any).mockResolvedValue(mockTranslation);
 
-      const result = await TextService.createText("Hello", "en", "fr", TEST_USER_ID);
+      const result = await TextService.createText("Bonjour", "en", "fr", TEST_USER_ID);
 
-      expect(translate).toHaveBeenCalledWith("Hello", "en", "fr");
+      expect(translate).toHaveBeenCalledWith("Bonjour", "fr", "en");
 
       // Verify data in DB
       const text = db
         .prepare("SELECT * FROM texts WHERE id = ?")
         .get(result.id) as any;
       expect(text).toBeDefined();
-      expect(text.text).toBe("Hello");
+      expect(text.text).toBe("Bonjour");
       expect(text.source_language).toBe("en");
       expect(text.target_language).toBe("fr");
 
@@ -106,13 +106,13 @@ describe("TextService", () => {
         .prepare("SELECT * FROM sentences WHERE text_id = ?")
         .all(result.id) as any[];
       expect(sentences).toHaveLength(1);
-      expect(sentences[0].source_sentence).toBe("Hello");
-      expect(sentences[0].target_sentence).toBe("Bonjour");
+      expect(sentences[0].source_sentence).toBe("Bonjour");
+      expect(sentences[0].target_sentence).toBe("Hello");
 
       const words = db.prepare("SELECT * FROM words").all() as any[];
       expect(words).toHaveLength(1);
-      expect(words[0].source_word).toBe("hello"); // Lowercase check
-      expect(words[0].target_word).toBe("bonjour");
+      expect(words[0].source_word).toBe("bonjour");
+      expect(words[0].target_word).toBe("hello"); // Lowercase check
 
       // Verify audio status is set to processing
       expect(text.audio_status).toBe("processing");
@@ -124,7 +124,7 @@ describe("TextService", () => {
       expect(generateAudioForText).toHaveBeenCalledWith(
         expect.anything(),
         result.id,
-        "en"
+        "fr"
       );
 
       // Verify result includes audio_status
@@ -140,18 +140,19 @@ describe("TextService", () => {
   describe("generateText", () => {
     it("should generate text using known words", async () => {
       // Insert some known words
+      // source_word contains learning language text, target_word contains known language text
       db.prepare(
         `
         INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
-        VALUES ('hello', 'bonjour', 'en', 'fr', ?), ('world', 'monde', 'en', 'fr', ?)
+        VALUES ('bonjour', 'hello', 'en', 'fr', ?), ('monde', 'world', 'en', 'fr', ?)
       `
       ).run(TEST_USER_ID, TEST_USER_ID);
 
       (generate as any).mockResolvedValue("Generated text");
 
-      const result = await TextService.generateText("en", 50, 3, TEST_USER_ID);
+      const result = await TextService.generateText("fr", 50, 3, TEST_USER_ID);
 
-      expect(generate).toHaveBeenCalledWith(["hello", "world"], 50, "en", 3);
+      expect(generate).toHaveBeenCalledWith(["bonjour", "monde"], 50, "fr", 3);
       expect(result).toBe("Generated text");
     });
   });

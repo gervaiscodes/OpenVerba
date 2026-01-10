@@ -11,7 +11,7 @@ type Word = {
   id: number;
   source_word: string;
   target_word: string;
-  source_language: string;
+  target_language: string;
   occurrence_count: number;
   writing_count: number;
   speaking_count: number;

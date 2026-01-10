@@ -62,9 +62,9 @@ export default function Texts() {
               onClick={() => navigate(`/texts/${t.id}`)}
             >
               <div className="flex gap-4 items-center justify-center text-zinc-500 font-medium text-sm mb-2">
-                <span className="inline-flex items-center rounded-md bg-zinc-800 border border-zinc-700 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white">{getLanguageName(t.source_language)}</span>
+                <span className="inline-flex items-center rounded-md bg-zinc-800 border border-zinc-700 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white">{getLanguageName(t.target_language)}</span>
                 <span>→</span>
-                <span className="inline-flex items-center rounded-md bg-zinc-900 border border-zinc-800 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-200">{getLanguageName(t.target_language)}</span>
+                <span className="inline-flex items-center rounded-md bg-zinc-900 border border-zinc-800 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-200">{getLanguageName(t.source_language)}</span>
                 <span className="ml-auto text-sm opacity-70">
                   {new Date(t.created_at).toLocaleDateString()}
                 </span>

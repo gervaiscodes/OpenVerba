@@ -12,8 +12,8 @@ export class TextService {
   ) {
     const { choice: translation, usage } = await translate(
       text,
-      sourceLanguage,
-      targetLanguage
+      targetLanguage,
+      sourceLanguage
     );
 
     // Insert into texts table
@@ -99,7 +99,7 @@ export class TextService {
     // Trigger audio generation in background (truly async)
     setImmediate(async () => {
       try {
-        await generateAudioForText(db, textId, sourceLanguage);
+        await generateAudioForText(db, textId, targetLanguage);
         // Update status to 'completed'
         db.prepare("UPDATE texts SET audio_status = ? WHERE id = ?").run(
           "completed",
@@ -131,7 +131,7 @@ export class TextService {
   ) {
     const wordsStmt = db.prepare(`
       SELECT source_word FROM words
-      WHERE source_language = ? AND user_id = ?
+      WHERE target_language = ? AND user_id = ?
     `);
     const words = wordsStmt.all(sourceLanguage, userId) as Array<{
       source_word: string;

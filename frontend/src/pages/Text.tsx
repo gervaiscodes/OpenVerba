@@ -98,9 +98,9 @@ export default function Text() {
   return (
     <div className="flex flex-col gap-4 sm:gap-6 max-w-4xl mx-auto py-3 px-2 sm:py-12 sm:px-6">
       <div className="flex gap-4 items-center justify-center text-zinc-500 font-medium text-sm" style={{ marginBottom: "1.5rem" }}>
-        <span className="inline-flex items-center rounded-md bg-zinc-800 border border-zinc-700 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white">{getLanguageName(data.source_language)}</span>
+        <span className="inline-flex items-center rounded-md bg-zinc-800 border border-zinc-700 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white">{getLanguageName(data.target_language)}</span>
         <span>→</span>
-        <span className="inline-flex items-center rounded-md bg-zinc-900 border border-zinc-800 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-200">{getLanguageName(data.target_language)}</span>
+        <span className="inline-flex items-center rounded-md bg-zinc-900 border border-zinc-800 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-200">{getLanguageName(data.source_language)}</span>
       </div>
 
       <div className="flex bg-[#0a0a0a] p-1 rounded-lg border border-zinc-800 mb-4 sm:mb-8 gap-0.5 sm:gap-1">
@@ -109,7 +109,7 @@ export default function Text() {
           onClick={() => setStep(1)}
           data-number="1"
         >
-          1. {getLanguageName(data.target_language)}
+          1. {getLanguageName(data.source_language)}
         </button>
         <button
           className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 2 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""}`}
@@ -130,7 +130,7 @@ export default function Text() {
           onClick={() => setStep(4)}
           data-number="4"
         >
-          4. {getLanguageName(data.source_language)}
+          4. {getLanguageName(data.target_language)}
         </button>
         <button
           className={`step-btn flex-1 py-2 px-1 sm:py-2.5 sm:px-4 rounded-md border-none bg-transparent text-zinc-500 text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-1 sm:gap-2 hover:text-zinc-200 hover:bg-zinc-900 ${step === 5 ? "active bg-zinc-800 text-white shadow-sm !border !border-zinc-700" : ""}`}
@@ -175,7 +175,7 @@ export default function Text() {
           isActive={playingIndex === idx}
           onPlayEnd={handleSentenceEnd}
           step={step}
-          language={getBCP47Code(data.source_language)}
+          language={getBCP47Code(data.target_language)}
         />
       ))}
 

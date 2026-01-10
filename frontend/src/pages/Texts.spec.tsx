@@ -35,15 +35,15 @@ describe('Texts', () => {
       {
         id: 1,
         text: 'Hello world',
-        source_language: 'en',
-        target_language: 'fr',
+        source_language: 'fr',
+        target_language: 'en',
         created_at: '2025-11-23T12:00:00Z',
       },
       {
         id: 2,
         text: 'Test text',
-        source_language: 'pl',
-        target_language: 'en',
+        source_language: 'en',
+        target_language: 'pl',
         created_at: '2025-11-23T13:00:00Z',
       },
     ];

@@ -84,7 +84,7 @@ export async function generateAudio(
 export async function generateAudioForText(
   db: Database,
   textId: number,
-  sourceLang: string
+  languageToLearn: string
 ) {
   console.log(`Starting audio generation for text ${textId}...`);
 
@@ -94,7 +94,7 @@ export async function generateAudioForText(
     .all(textId) as { id: number; source_sentence: string }[];
 
   for (const sentence of sentences) {
-    const audioUrl = await generateAudio(sentence.source_sentence, sourceLang);
+    const audioUrl = await generateAudio(sentence.source_sentence, languageToLearn);
     if (audioUrl) {
       db.prepare("UPDATE sentences SET audio_url = ? WHERE id = ?").run(
         audioUrl,
@@ -120,7 +120,7 @@ export async function generateAudioForText(
     // Skip punctuation-only words
     if (/^[\p{P}\p{S}]+$/u.test(word.source_word)) continue;
 
-    const audioUrl = await generateAudio(word.source_word, sourceLang);
+    const audioUrl = await generateAudio(word.source_word, languageToLearn);
     if (audioUrl) {
       db.prepare("UPDATE words SET audio_url = ? WHERE id = ?").run(
         audioUrl,

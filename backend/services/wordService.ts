@@ -7,7 +7,7 @@ export class WordService {
         w.id,
         w.source_word,
         w.target_word,
-        w.source_language,
+        w.target_language,
         w.audio_url,
         COUNT(DISTINCT s.text_id) as occurrence_count,
         COUNT(DISTINCT CASE WHEN c.method = 'writing' THEN c.id END) as writing_count,
@@ -18,14 +18,14 @@ export class WordService {
       LEFT JOIN completions c ON w.id = c.word_id
       WHERE w.user_id = ?
       GROUP BY w.id
-      ORDER BY w.source_language, occurrence_count DESC
+      ORDER BY w.target_language, occurrence_count DESC
     `);
 
     const words = wordsStmt.all(userId) as Array<{
       id: number;
       source_word: string;
       target_word: string;
-      source_language: string;
+      target_language: string;
       audio_url: string | null;
       occurrence_count: number;
       writing_count: number;
@@ -40,10 +40,10 @@ export class WordService {
 
     return filteredWords.reduce(
       (acc, word) => {
-        if (!acc[word.source_language]) {
-          acc[word.source_language] = [];
+        if (!acc[word.target_language]) {
+          acc[word.target_language] = [];
         }
-        acc[word.source_language].push(word);
+        acc[word.target_language].push(word);
         return acc;
       },
       {} as Record<string, typeof words>

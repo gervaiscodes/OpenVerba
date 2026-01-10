@@ -248,11 +248,12 @@ describe("TextController", () => {
 
   describe("generate", () => {
     it("should generate text", async () => {
-      // Setup known words via SQL
+      // Setup known words via SQL (target_language='en' so it gets found by the query)
+      // source_word contains English text (learning language)
       db.prepare(
         `
         INSERT INTO words (source_word, target_word, source_language, target_language, user_id)
-        VALUES ('hello', 'bonjour', 'en', 'fr', ?)
+        VALUES ('hello', 'bonjour', 'fr', 'en', ?)
       `
       ).run(TEST_USER_ID);
 

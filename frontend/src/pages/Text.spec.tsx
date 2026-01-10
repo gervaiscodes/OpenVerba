@@ -16,18 +16,18 @@ vi.mock('react-router-dom', async () => {
 
 // Mock translation data structure that matches what's inside translation_data JSON
 const mockTranslationData = {
-  source_language: 'pl',
-  target_language: 'en',
+  source_language: 'en',
+  target_language: 'pl',
   original_text: 'Witaj świecie',
   sentences: [
     {
       id: 1,
-      source_sentence: 'Witaj świecie',
-      target_sentence: 'Hello world',
+      source_sentence: 'Hello world',
+      target_sentence: 'Witaj świecie',
       audio_url: '/audio/test.mp3',
       items: [
-        { order: 1, source: 'Witaj', target: 'Hello', audio_url: '/audio/witaj.mp3' },
-        { order: 2, source: 'świecie', target: 'world', audio_url: '/audio/swiecie.mp3' },
+        { order: 1, source: 'Hello', target: 'Witaj', audio_url: '/audio/witaj.mp3' },
+        { order: 2, source: 'world', target: 'świecie', audio_url: '/audio/swiecie.mp3' },
       ],
     },
   ],
@@ -37,8 +37,8 @@ const mockTranslationData = {
 const mockTextData = {
   id: 1,
   text: 'Witaj świecie',
-  source_language: 'pl',
-  target_language: 'en',
+  source_language: 'en',
+  target_language: 'pl',
   translation_data: JSON.stringify(mockTranslationData), // Backend returns this as a JSON string
   usage: {
     prompt_tokens: 10,
@@ -83,9 +83,9 @@ describe('Text', () => {
 
     renderWithRouter();
 
-    // Step 1 shows target sentence (English) by default
+    // Step 1 shows target sentence (Polish - learning language) by default
     await waitFor(() => {
-      expect(screen.getByText('Hello world')).toBeInTheDocument();
+      expect(screen.getByText('Witaj świecie')).toBeInTheDocument();
     });
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
@@ -195,9 +195,9 @@ describe('Text', () => {
 
     renderWithRouter();
 
-    // Wait for content to load (step 1 shows target sentence)
+    // Wait for content to load (step 1 shows target sentence - Polish)
     await waitFor(() => {
-      expect(screen.getByText('Hello world')).toBeInTheDocument();
+      expect(screen.getByText('Witaj świecie')).toBeInTheDocument();
     });
 
     // Should show delete button
