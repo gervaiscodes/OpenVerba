@@ -319,91 +319,73 @@ export default function Text() {
         </div>
       )}
 
-      <div className="mt-8 flex flex-col gap-4 items-center border-t border-zinc-800 pt-6">
-        <button
-          onClick={handleMarkStepComplete}
-          disabled={isMarkingComplete || completedSteps?.includes(step)}
-          className={`py-2.5 px-6 rounded-lg text-sm font-semibold transition-all ${
-            completedSteps?.includes(step)
-              ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700"
-              : "bg-emerald-600 text-white hover:bg-emerald-700 border-none cursor-pointer"
-          } ${isMarkingComplete ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          {isMarkingComplete
-            ? "Marking Complete..."
-            : completedSteps?.includes(step)
-            ? `Step ${step} Already Completed ✓`
-            : `Mark Step ${step} as Complete`}
-        </button>
-
-        {completedSteps?.length > 0 && (
+      <div className="mt-12 border-t border-zinc-800 pt-6 pb-4">
+        <div className="flex flex-col items-center gap-3">
           <button
-            onClick={handleResetCompletions}
-            disabled={isResetting}
-            className={`py-2 px-4 rounded-lg bg-zinc-800 text-zinc-400 border border-zinc-700 text-sm font-medium hover:bg-zinc-700 hover:text-zinc-200 transition-all ${
-              isResetting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-            }`}
+            onClick={handleMarkStepComplete}
+            disabled={isMarkingComplete || completedSteps?.includes(step)}
+            className={`py-1.5 px-4 rounded-md text-xs font-semibold transition-all ${
+              completedSteps?.includes(step)
+                ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700"
+                : "bg-emerald-600 text-white hover:bg-emerald-700 border-none cursor-pointer"
+            } ${isMarkingComplete ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            {isResetting ? "Resetting..." : "Reset All Completions"}
+            {isMarkingComplete
+              ? "Marking Complete..."
+              : completedSteps?.includes(step)
+              ? `Step ${step} Completed ✓`
+              : `Mark Step ${step} Complete`}
           </button>
-        )}
-      </div>
 
-      <div style={{
-        marginTop: '2rem',
-        textAlign: 'center'
-      }}>
-        {!showDeleteConfirm ? (
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            style={{
-              background: '#ef4444',
-              color: 'white',
-              border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '0.875rem'
-            }}
-          >
-            Delete Text
-          </button>
-        ) : (
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ color: '#a1a1aa' }}>Are you sure?</span>
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              style={{
-                background: '#ef4444',
-                color: 'white',
-                border: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                cursor: isDeleting ? 'not-allowed' : 'pointer',
-                fontSize: '0.875rem',
-                opacity: isDeleting ? 0.5 : 1
-              }}
-            >
-              {isDeleting ? 'Deleting...' : 'Yes, Delete'}
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(false)}
-              disabled={isDeleting}
-              style={{
-                background: '#27272a',
-                color: 'white',
-                border: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                cursor: isDeleting ? 'not-allowed' : 'pointer',
-                fontSize: '0.875rem'
-              }}
-            >
-              Cancel
-            </button>
+          <div className="flex items-center gap-2 text-xs">
+            {completedSteps?.length > 0 && (
+              <button
+                onClick={handleResetCompletions}
+                disabled={isResetting}
+                className={`py-1 px-2.5 rounded bg-transparent text-zinc-500 border-none hover:text-zinc-300 transition-colors ${
+                  isResetting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                }`}
+              >
+                {isResetting ? "Resetting..." : "Reset Completions"}
+              </button>
+            )}
+
+            {completedSteps?.length > 0 && (
+              <span className="text-zinc-700">•</span>
+            )}
+
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="py-1 px-2.5 rounded bg-transparent text-red-500 border-none hover:text-red-400 transition-colors cursor-pointer"
+              >
+                Delete Text
+              </button>
+            ) : (
+              <div className="flex gap-2 items-center">
+                <span className="text-zinc-500">Delete?</span>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className={`py-1 px-2.5 rounded bg-red-600 text-white border-none text-xs hover:bg-red-700 transition-colors ${
+                    isDeleting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                  }`}
+                >
+                  {isDeleting ? 'Deleting...' : 'Yes'}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className={`py-1 px-2.5 rounded bg-zinc-800 text-zinc-300 border-none text-xs hover:bg-zinc-700 transition-colors ${
+                    isDeleting ? "cursor-not-allowed" : "cursor-pointer"
+                  }`}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
