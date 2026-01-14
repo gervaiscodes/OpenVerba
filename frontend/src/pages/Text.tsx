@@ -333,8 +333,8 @@ export default function Text() {
             {isMarkingComplete
               ? "Marking Complete..."
               : completedSteps?.includes(step)
-              ? `Step ${step} Completed ✓`
-              : `Mark Step ${step} Complete`}
+              ? `Step ${step} Already Completed ✓`
+              : `Mark Step ${step} as Complete`}
           </button>
 
           <div className="flex items-center gap-2 text-xs">
@@ -346,7 +346,7 @@ export default function Text() {
                   isResetting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
                 }`}
               >
-                {isResetting ? "Resetting..." : "Reset Completions"}
+                {isResetting ? "Resetting..." : "Reset All Completions"}
               </button>
             )}
 
@@ -363,7 +363,7 @@ export default function Text() {
               </button>
             ) : (
               <div className="flex gap-2 items-center">
-                <span className="text-zinc-500">Delete?</span>
+                <span className="text-zinc-500">Are you sure?</span>
                 <button
                   onClick={handleDelete}
                   disabled={isDeleting}
@@ -371,7 +371,7 @@ export default function Text() {
                     isDeleting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
                   }`}
                 >
-                  {isDeleting ? 'Deleting...' : 'Yes'}
+                  {isDeleting ? 'Deleting...' : 'Yes, Delete'}
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}

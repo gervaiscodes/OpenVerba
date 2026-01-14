@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import translate from "./translate.js";
 
-// Mock OpenAI
+// Set env var and create mock before any imports
 const { mockCreate } = vi.hoisted(() => {
+  process.env.OPENAI_API_KEY = "test-key";
   return { mockCreate: vi.fn() };
 });
+
+import translate from "./translate.js";
 
 vi.mock("openai", () => {
   return {
@@ -25,7 +27,6 @@ describe("translate", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.OPENAI_API_KEY = "test-key";
   });
 
   it("should successfully translate text and return parsed JSON", async () => {
