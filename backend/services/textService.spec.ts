@@ -132,7 +132,6 @@ describe("TextService", () => {
       expect(result).toEqual({
         id: expect.any(Number),
         translation: mockTranslation.choice,
-        usage: mockTranslation.usage,
         audio_status: "processing",
       });
     });

@@ -3,7 +3,6 @@ import type { StepConfig } from "../types/alignment";
 export const STEP_CONFIG: Record<number, StepConfig> = {
   1: {
     // Read Target (English)
-    showTokens: false,
     showSource: false,
     showTarget: true,
     showAudioBtn: false,
@@ -14,7 +13,6 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
   },
   2: {
     // Listen (Target text shown, Source audio)
-    showTokens: false,
     showSource: false,
     showTarget: true,
     showAudioBtn: true,
@@ -32,7 +30,6 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
   },
   3: {
     // Dual
-    showTokens: true,
     showSource: true,
     showTarget: "conditional",
     showAudioBtn: true,
@@ -41,7 +38,6 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
   },
   4: {
     // Read Source (Spanish)
-    showTokens: false,
     showSource: true,
     showTarget: false,
     showAudioBtn: false,
@@ -51,7 +47,6 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
   },
   5: {
     // Practice (Cloze)
-    showTokens: false,
     showSource: true,
     showTarget: false,
     showAudioBtn: true,
@@ -67,7 +62,6 @@ export const STEP_CONFIG: Record<number, StepConfig> = {
   },
   6: {
     // Speak (Pronunciation)
-    showTokens: false,
     showSource: false, // Hidden because PronunciationPractice component handles display
     showTarget: false,
     showAudioBtn: false,

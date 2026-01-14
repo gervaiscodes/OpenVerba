@@ -119,7 +119,6 @@ export class TextService {
     return {
       id: textId,
       translation,
-      usage,
       audio_status: "processing",
     };
   }
@@ -232,9 +231,6 @@ export class TextService {
           text: string;
           source_language: string;
           target_language: string;
-          prompt_tokens: number;
-          completion_tokens: number;
-          total_tokens: number;
           created_at: string;
         }
       | undefined;
@@ -305,11 +301,6 @@ export class TextService {
       source_language: text.source_language,
       target_language: text.target_language,
       translation_data: JSON.stringify(translationData),
-      usage: {
-        prompt_tokens: text.prompt_tokens,
-        completion_tokens: text.completion_tokens,
-        total_tokens: text.total_tokens,
-      },
       created_at: text.created_at,
     };
   }

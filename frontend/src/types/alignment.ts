@@ -21,15 +21,9 @@ export type AlignmentData = {
   original_text: string;
   translation_data: string;
   sentences: AlignmentSentence[];
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
 };
 
 export type StepConfig = {
-  showTokens: boolean;
   showSource: boolean;
   showTarget: boolean | "conditional";
   showAudioBtn: boolean;

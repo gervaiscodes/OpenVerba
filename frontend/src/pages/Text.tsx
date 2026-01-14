@@ -296,29 +296,6 @@ export default function Text() {
         />
       ))}
 
-      {data.usage && (
-        <div style={{
-          marginTop: '2rem',
-          padding: '1rem',
-          borderTop: '1px solid #27272a',
-          color: '#71717a',
-          fontSize: '0.875rem',
-          display: 'flex',
-          gap: '2rem',
-          justifyContent: 'center'
-        }}>
-          <div>
-            <strong style={{ color: '#a1a1aa' }}>Prompt Tokens:</strong> {data.usage.prompt_tokens}
-          </div>
-          <div>
-            <strong style={{ color: '#a1a1aa' }}>Completion Tokens:</strong> {data.usage.completion_tokens}
-          </div>
-          <div>
-            <strong style={{ color: '#a1a1aa' }}>Total Tokens:</strong> {data.usage.total_tokens}
-          </div>
-        </div>
-      )}
-
       <div className="mt-12 border-t border-zinc-800 pt-6 pb-4">
         <div className="flex flex-col items-center gap-3">
           <button

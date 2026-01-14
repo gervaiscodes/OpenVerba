@@ -42,11 +42,6 @@ const mockTextData = {
   source_language: 'en',
   target_language: 'pl',
   translation_data: JSON.stringify(mockTranslationData), // Backend returns this as a JSON string
-  usage: {
-    prompt_tokens: 10,
-    completion_tokens: 20,
-    total_tokens: 30,
-  },
   created_at: '2024-01-01T00:00:00.000Z',
 };
 
@@ -175,27 +170,6 @@ describe('Text', () => {
     await waitFor(() => {
       expect(screen.getByText(/Error:/)).toBeInTheDocument();
       expect(screen.getByText(/Failed to load alignment/)).toBeInTheDocument();
-    });
-  });
-
-  it('displays token usage information', async () => {
-    (globalThis.fetch as any).mockImplementation((url: string) => {
-      if (url.includes('/api/completions/total')) {
-        return Promise.resolve({ ok: true, json: async () => ({ total: 10 }) });
-      }
-      if (url.includes('/api/completions/streak')) {
-        return Promise.resolve({ ok: true, json: async () => ({ streak: 5 }) });
-      }
-      return Promise.resolve({
-        ok: true,
-        json: async () => mockTextData,
-      });
-    });
-
-    renderWithRouter();
-
-    await waitFor(() => {
-      expect(screen.getByText(/30/)).toBeInTheDocument();
     });
   });
 
